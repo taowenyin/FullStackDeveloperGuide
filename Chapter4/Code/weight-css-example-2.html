@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSS优先级原则二</title>
+    <style type="text/css">
+        #level-1 .level-3 {
+            color:#F00; /* 红色，优先级 = 100+10=110 */
+        }
+        #level-1 .level-4 {
+            color:#00F; /* 蓝色，优先级 = 100+10=110 */
+        }
+    </style>
+</head>
+<body>
+    <div id="level-1">
+        <p class="level-3 level-4">
+            <span>HTML5</span>
+        </p>
+     </div>
+</body>
+</html>
+
+

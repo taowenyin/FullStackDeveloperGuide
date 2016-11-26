@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>关系选择器</title>
+    <style type="text/css">
+        body > div, body > span {
+            display : block;border: 5px solid #F00;margin: 5px 5px;
+        }
+        .first p { color : #F00; }
+        .second > p { color : #0F0; }
+        .third p + div { color : #00F; }
+        .fourth p ~ div { color : #FCA; }
+    </style>
+</head>
+<body>
+    <div class="first">
+        <p>HTML5</p>
+        <p>HTML5</p>
+    </div>
+    <span class="second">
+        <div><p>HTML5</p></div>
+        <p>HTML5</p>
+    </span>
+    <span class="third">
+        <p>HTML5</p>
+        <div>HTML5</div>
+        <div>HTML5</div>
+    </span>
+    <div class="fourth">
+        <p>HTML5</p>
+        <div>HTML5</div>
+        <div>HTML5</div>
+    </div>
+</body>
+</html>
+
+
