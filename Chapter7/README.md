@@ -569,3 +569,598 @@ class Singleton {
 具体来说，在getInstance()函数内首先通过is_null()函数来判断$instance是否为null，如果为null，那么就说明该类的对象还没有被创建，就可以通过new关键字来创建，要特别说明的是，这里能通过new关键来创建的原因是该函数在类的内部，而不是外部，private函数只是对外不可见，在类内部则可以任意调用，所以可以通过new关键来创建该类的对象并返回，之后每次要得到对象时，只需要通过getInstance()函数即可，如果对象已经存在就直接返回，如果不存在，那么创建后再返回。单例模式在实际开发中使用的非常多，在这里读者需要特别注意和理解的是它的实现思想，因为在实际开发中，它的变种非常多。
 
 ## 7.5 面向对象中继承性的编程思想
+
+除了封装性外，面向对象中的继承性也是其非常重要的设计，因为有了这一特性开发人员所编写出来的程序才能够被复用和扩展，从而大大提高编程编程的效率，避免开发人员不断重复造轮子的问题，同时通过继承性也可以帮助后续的开发人员在前人程序的基础上进行不断的扩展和完善，使得整个程序具有很强的扩展性，例如在目前非常流行的几款编辑软件，VSCode、VIM、Emacs，它们都是通过继承相应的接口来实现软件无限的扩展，从而具有非常丰富的功能，所以本节将详细讲解在面向对象编程中的继承性的应用和编程理念。
+
+### 7.5.1 继承性的基本含义
+
+所谓继承性，顾名思义就是在某一个类的基础上创建一个新的类，并且保留原来类的相关内容，例如成员函数、成员变量等，然后在其基础上进行扩展，添加新的函数和新的成员变量等，并且这个继承关系可以始终延续下去，从而形成更加丰富的继承形式。所以在开发时，通过称被继承的类为基类或者父类，而继承的类为派生类或者子类，因此继承也可以说是子类对父类的再扩展和再完善。
+
+这里要特别说明的是，继承性在不同编程语言中表现有所差别，例如C++语言，虽然该语言是一个面向对象的语言，但是在实现继承时可以有一个或者多个基类，而像Java和PHP则不同，其实现继承时只能从一个基类继承，而不能有多个基类。在许多刚接触编程或者接触编程不久的开发人员会经常有一个疑惑，就是为什么Java和PHP这样相较于C++而言更加高级的语言会摒弃多继承，而选择单继承，因为多继承的好处显而易见，即可以让子类有更多的父类特性，但是多继承也有其很明显，并且非常致命的两个缺点，具体如下：
+
+1、在多个父类中具有相同名字的成员变量，从而发生歧义。在实际开发中，很多时候是无法知道父类的源代码，也因此无法修改，而且即使知道也最好不要进行修改，就会带来一个不确定性，当多个父类中使用同一个成员变量名称时，子类的引用就会产生歧义，使得系统无法判断是引用的哪一个父类中的成员变量，从而引发错误，具体伪代码如下：
+
+```php
+class A {
+    public $parentValue = 0;
+}
+
+class B {
+    public $parentValue = 1;
+}
+
+class C 继承 A, B {
+    public function printParent() {
+        echo 父类->$parentValue
+    }
+}
+```
+
+从上面的代码不难看出，当创建类C的对象，并且调用printParent()函数来打印父类变量时，系统无法判断是A中$parentValue还是B中$parentValue，从而引发了错误。
+
+2、在多个父类中具有相同名字的成员函数，从而发生歧义。即当多个父类中使用同一个成员函数名称时，子类的引用就会产生歧义，使得系统无法判断调用哪一个父类中的成员函数，从而引发错误，具体伪代码如下：
+
+```php
+class A {
+    public function printValue() {
+        echo '1';
+    }
+}
+
+class B {
+    public function printValue() {
+        echo '2';
+    }
+}
+
+class C 继承 A, B {
+}
+```
+
+从上面的代码不难看出，当创建类C的对象，并且调用父类的printValue()函数来打印变量时，系统无法判断是A中printValue()函数还是B中printValue()函数，从而引发了错误。因为这两个错误都是非常致命的，会严重影响代码的正确运行，所以在Java和PHP中就禁止了多继承的特性，以避免这些问题。
+
+### 7.5.2 继承性关键字的使用方法
+
+PHP中关于继承性的关键字只有一个，即extends。继承的实现也非常简单，只要创建一个新的类，然后在类名后面添加关键字extends，并在extends关键字后面添加父类的类名即可，具体代码如下：
+
+```php
+class Student {
+    private $name = '张三';
+    private $sex = '男';
+    private $age = '20';
+
+    public function getName() {
+        return $this->name;
+    }
+
+    protected function getSex() {
+        return $this->sex;
+    }
+
+    private function getAge() {
+        return $this->age;
+    }
+}
+
+class Undergraduate extends Student {
+    private $university = null;
+
+    public function __construct($university) {
+        $this->university = $university;
+    }
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().' 我的大学叫'.$this->university.'<br />';
+    }
+}
+
+class HighSchool extends Student {
+    private $school = null;
+
+    public function __construct($school) {
+        $this->school = $school;
+    }
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().' 我的高中叫'.$this->school.'<br />';
+    }
+}
+
+$undergraduate = new Undergraduate('南京大学');
+$undergraduate->printInfo();
+
+$highSchool = new HighSchool('北京外国语学校');
+$highSchool->printInfo();
+```
+
+*执行程序的结果：*
+
+```php
+我叫张三 我的大学叫南京大学
+我叫张三 我的高中叫北京外国语学校
+```
+
+在上面例子中，首先声明了一个学生类Student，并且在该类中定义了三个私有的成员变量，分别是$name、$sex、$age，用于表示学生的姓名、性别、年龄，然后在Student类中定义了三个成员函数，分别为公有函数getName()、保护函数getSex()、私有getAge()，用于获取学生的姓名、性别、年龄。然后再声明一个大学生类Undergraduate和高中生类HighSchool，并且这两个类分别通过关键extends继承于父类Student，并在这两个类中分别定义了函数printInfo()用于打印相关信息，从程序的程序的结果可以看出，通过继承大大简化了程序的结构，并且实现了现有程序的复用，在类Undergraduate和HighSchool中并没有定义getName()这个函数，但是因为这个两个类都继承了Student类，因此它们就包含了Student中的相关函数，就是因为这个原因，所以在printInfo()可以调用父类Student中的getName()函数。
+
+上面所说的原理非常好理解，但又暗藏玄机，因为在封装性这一节中讲了在面向对象的编程中可以为成员变量和成员函数添加关键字private、public、protect中的一个，以限定其访问权限，那么如果一个类和另一个类有继承关系，那么这些关键字又会起到什么作用呢？下面将以Student、Undergraduate和HighSchool类为基础进行讲解。
+
+1、公有关键字public在继承中的使用。当在基类中的成员变量或成员函数被定义为public时，那么对于子类而言，这个成员变量或者成员函数就是可见的，也就是说在子类中是可以被调用，就像在上面例子中，因为getName()函数在基类中被定义为public，所以在子类中可以获取其函数，同时在基类中定义为public的函数还可以被子类对象在外部进行调用，具体代码如下。从下面的结果不难验证上面的说法，即public定义的函数，不仅可以在子类内部被调用，还可以被子类的对象所调用。
+
+```php
+$undergraduate = new Undergraduate('南京大学');
+echo '我的名字叫：',$undergraduate->getName().'<br />';
+
+$highSchool = new HighSchool('北京外国语学校');
+echo '我的名字叫：'.$highSchool->getName().'<br />';
+```
+
+*执行程序的结果：*
+
+```php
+我的名字叫：张三
+我的名字叫：张三
+```
+
+2、保护关键字protected在继承中的使用。当在基类中的成员变量或成员函数被定义为protected时，那么对于子类而言，这个成员变量或者成员函数就是可见的，也就是说在子类中也可以被调用，但是它与public的区别在于，被protected定义的成员变量或者成员函数不能被对象调用，而只能在子类的内部使用，当public则不同，既可以在子类的内部被调用，也可以被子类的对象调用，具体代码如下。从下面程序运行的结果不难验证上面的说法，即protected定义的函数，只能在子类内部被调用，而不能被子类的对象所调用。
+
+*protected在内部调用：*
+
+```php
+class Undergraduate extends Student {
+    ......
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我是'.$this->getSex().'生，我的大学叫'.$this->university.'<br />';
+    }
+}
+
+class HighSchool extends Student {
+    ......
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我是'.$this->getSex().'生，我的高中叫'.$this->school.'<br />';
+    }
+}
+
+$undergraduate = new Undergraduate('南京大学');
+$undergraduate->printInfo();
+
+$highSchool = new HighSchool('北京外国语学校');
+$highSchool->printInfo();
+```
+
+*protected在内部调用的结果：*
+
+```php
+我叫张三，我是男生，我的大学叫南京大学
+我叫张三，我是男生，我的高中叫北京外国语学校
+```
+
+*protected在外部调用：*
+
+```php
+class Undergraduate extends Student {
+    ......
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我是'.$this->getSex().'生，我的大学叫'.$this->university.'<br />';
+    }
+}
+
+class HighSchool extends Student {
+    ......
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我是'.$this->getSex().'生，我的高中叫'.$this->school.'<br />';
+    }
+}
+
+$undergraduate = new Undergraduate('南京大学');
+echo '我是'.$undergraduate->getSex().'生';
+
+$highSchool = new HighSchool('北京外国语学校');
+echo '我是'.$highSchool->getSex().'生';
+```
+
+*protected在外部调用的结果：*
+
+![Protected-Parent](Screenshot/Protected-Parent.png)
+
+3、私有关键字private在继承中的使用。当在基类中的成员变量或成员函数被定义为private时，那么对于子类而言，这个成员变量或者成员函数就是不可见的，也就是说在子类中不可以被调用，而只能在基类的内部使用，具体代码如下。从下面程序运行的结果可以看到不论是在子类的内部，还是通过子类对象对基类的私有函数进行调用都会触发错误，使得程序无法运行。
+
+*private在内部调用：*
+
+```php
+class Undergraduate extends Student {
+    ......
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我今年'.$this->getAge().'岁，我的大学叫'.$this->university.'<br />';
+    }
+}
+
+class HighSchool extends Student {
+    ......
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我今年'.$this->getAge().'岁，我的高中叫'.$this->school.'<br />';
+    }
+}
+
+$undergraduate = new Undergraduate('南京大学');
+$undergraduate->printInfo();
+
+$highSchool = new HighSchool('北京外国语学校');
+$highSchool->printInfo();
+```
+
+*private在内部调用的结果：*
+
+![Private-Parent](Screenshot/Private-Parent.png)
+
+*private在外部调用：*
+
+```php
+class Undergraduate extends Student {
+    ......
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我今年'.$this->getAge().'岁，我的大学叫'.$this->university.'<br />';
+    }
+}
+
+class HighSchool extends Student {
+    ......
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我今年'.$this->getAge().'岁，我的高中叫'.$this->school.'<br />';
+    }
+}
+
+$undergraduate = new Undergraduate('南京大学');
+echo '我今年'.$undergraduate->getAge().'岁';
+
+$highSchool = new HighSchool('北京外国语学校');
+echo '我今年'.$highSchool->getAge().'岁';
+```
+
+*private在外部调用的结果：*
+
+![Private-Parent-out](Screenshot/Private-Parent-out.png)
+
+从上面的实例中可以总结三个关键字public、protected、private在基类、子类，以及外部调用上的特点，如表7-1。
+
+表7-1 访问权限在类的成员函数和成员变量中的特点
+
+|  项目 | public | protected | private |
+| :--------: | :-----: | :----: | :----: |
+| 基类中的调用 | 可以 | 可以 | 可以 |
+| 子类中的调用 | 可以 | 可以 | 不可以 |
+| 对象外部的调用 | 可以 | 不可以 | 不可以 |
+
+在PHP的类中除了普通的成员函数和成员变量外，还有一个的构造函数，不论是默认的构造函数，还是自定义的构造函数，在类中都一定会有一个构造函数，因此当类和类之间具有继承关系时就需要特别注意，这就有两种情况，分别为：
+
+1、在基类中创建了自定义的构造函数。此时就必须在子类中首先调用基类的构造函数，虽然PHP的语法没有强制这一操作，但是如果在子类中没有调用父类构造函数，也就意味着会数据和逻辑两方面的问题。一方面是当子类在调用父类中的某些函数时会因为数据不全而无法运行，从而造成程序的错误和内部逻辑的混乱。另外一方面是无法正确的映射生活中的现象，因为从现实生活中，要有子类，首先就必须要有父类才行。因此当父类中定义了构造函数，那么在子类中就需要用到关键parent关键，该关键字用于调用父类的函数，除了普通的成员函数外，也包含构造函数，从该关键就可以调用父类的构造函数，从而初始化父类中的数据，具体代码如下：
+
+*父类构造函数的调用：*
+
+```php
+class Student {
+    private $name = null;
+    private $sex = null;
+    private $age = null;
+
+    public function __construct($name, $sex, $age) {
+        $this->name = $name;
+        $this->sex = $sex;
+        $this->age = $age;
+        echo '父类构造函数 <br />';
+    }
+
+    ......
+}
+
+class Undergraduate extends Student {
+    private $university = null;
+
+    public function __construct($name, $sex, $age, $university) {
+        parent::__construct($name, $sex, $age);
+        $this->university = $university;
+        echo 'Undergraduate构造函数 <br />';
+    }
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我的大学叫'.$this->university.'<br />';
+    }
+}
+
+class HighSchool extends Student {
+    private $school = null;
+
+    public function __construct($name, $sex, $age, $school) {
+        parent::__construct($name, $sex, $age);
+        $this->school = $school;
+        echo 'HighSchool构造函数 <br />';
+    }
+
+    public function printInfo() {
+        echo '我叫'.$this->getName().'，我的高中叫'.$this->school.'<br />';
+    }
+}
+
+$undergraduate = new Undergraduate('张三', '男', 20, '南京大学');
+$undergraduate->printInfo();
+
+$highSchool = new HighSchool('小明', '女', 18, '北京外国语学校');
+$highSchool->printInfo();
+```
+
+*父类构造函数的调用结果：*
+
+```php
+父类构造函数 
+Undergraduate构造函数 
+我叫张三，我的大学叫南京大学
+父类构造函数 
+HighSchool构造函数 
+我叫小明，我的高中叫北京外国语学校
+```
+
+从上面的结果不难看出，当在子类中调用了父类的构造函数，那么系统就会在子类的构造函数中先调用父类的构造函数，把父类这个对象进行创建，然后在调用子类的构造函数，把子类的对象进行创建，这样做法不仅符合程序的顺序，也符合生活中的逻辑。
+
+2、在基类中没有创建自定义的构造函数。此时对于子类来说就没有必要通过关键parent来初始化父类，因为在父类中没有数据需要初始化，所以对于子类来说只需要使用自己的自定义构造函数，或者默认的构造函数即可。
+
+## 7.6 面向对象中多态性的编程思想
+
+接下来要说的就是面向对象编程三大特性中的最后一个，即多态性。多态性最重要的特点就是能让程序根据输入的不同自动选择所需要的函数进行执行，同时也可以让具有相同父类的子类具有统一的接口，却在执行过程中能够自动判断是哪一个子类，从而执行不同子类中的函数。多态性除了上面以程序的角度来思考外，也与继承性、封装性一样可以用生活中的案例来解读，例如到商场里面买东西，可以采用支付宝、微信、现金、充值卡等多种方式进行结账，但最终都会把费用支付给商家，这种通过多种方式，但产生相同结果的过程就是多态，生活中其实还有很多，例如上班时交通工具的选择等。因为在PHP的语法规定不能有重名的函数，因此PHP不像其他语言可以在一个类中实现相同函数名，不同函数参数的多态性，而是主要以父类和子类中的函数多态为主要表现形式。
+
+### 7.6.1 父类和子类的函数重写
+
+所谓重写（英文：override），就是当父类中有一个成员函数A，而子类在继承父类的同时把函数A也会继承过来，此时如果在子类中也定义了一个函数B，该函数与父类成员函数A具有相同函数名和相同函数参数，但是函数的实现体却不同，那么就说子类中函数B是父类成员函数A的重写。
+
+从表面上看函数的重写只是定义了一个与父类形式相同，而内容不同的函数，似乎没有太大的意义，但是实际上重写的使用具有非常重要的实际意义。首先在父类和子类的继承过程中private是不能在子类中被继承的，而能被继承的就只有protected和public函数，因此如果要在子类中实现函数的重写，只有从protected和public这两类函数中进行挑选，其次这两类函数所表达的意义是能在子类或者外部调用的函数，通常作为个对象之间或者父类和子类之间通信的接口，在应用开发中当子类对某个接口没有特别需求时就可以使用从父类中继承的函数，从而保证对象接口的完整性，而当子类中有特别需求时，那么就可以通过重写的方式来对覆盖父类中的函数，并且通过这个覆盖的函数来实现接口相同，实现却不同。就像当我们还是婴儿的时候，我们说话的方式都是以哭声来进行表达，不论是中国人还是美国人，而当我们长大后说话的方式则各有不同，中国人采用中文来表达，而美国人则采用英语来表达，同时中国人和美国人也都可以通过哭声来表达某种情绪，下面就通过一个实例来具体的讲解。
+
+*重写函数的调用：*
+
+```php
+class Baby {
+    private $name = null;
+    private $sex = null;
+    private $age = null;
+
+    public function __construct($name, $sex, $age) {
+        $this->name = $name;
+        $this->sex = $sex;
+        $this->age = $age;
+    }
+
+    public function getName() {
+        return $this->name;
+    }
+
+    protected function getSex() {
+        return $this->sex;
+    }
+
+    private function getAge() {
+        return $this->age;
+    }
+
+    public function talk() {
+        echo "我是婴儿，我在用哭说话<br />";
+    }
+}
+
+class Chinese extends Baby {
+
+    public function __construct($name, $sex, $age) {
+        parent::__construct($name, $sex, $age);
+    }
+
+    public function talk() {
+        echo '我叫'.$this->getName().'，我是中国人<br />';
+    }
+}
+
+class American extends Baby {
+
+    public function __construct($name, $sex, $age) {
+        parent::__construct($name, $sex, $age);
+    }
+}
+
+$baby = new Baby('李四', '男', 2);
+$baby->talk();
+
+$chinese = new Chinese('张三', '男', 20);
+$chinese->talk();
+
+$american = new American('Lucy', '女', 18);
+$american->talk();
+```
+
+*重写函数的调用结果：*
+
+```php
+我是婴儿，我在用哭说话
+我叫张三，我是中国人
+我是婴儿，我在用哭说话
+```
+
+在上面的案例中首先创建了一个父类Baby，在该类中通过构造函数传入姓名、年龄和性别，并可以通过三个getXXX()函数进行获取，同时在Baby类中定义了一个talk()函数，用于表示说话，因为父类表示的是婴儿，所以就在talk()函数类打印"我是婴儿，我在用哭说话"这句话。在定义完Baby类后定义它的两个子类，分别是Chinese和American，这两个类表示中国人和美国人，两者相同的地方是都在各自的构造函数中调用了父类的构造函数，不同的地方在于Chinese这个类中创建了talk()来重写的父类的函数，而在American中则没有重新。从结果可以看出，当Chinese类中重写了父类中的talk()函数后，子类对象在调用该函数时会自动调用子类中重写后的函数，而当子类中没有重写父类中的函数时，那么它就会调用父类中的函数。最后，还需要特别说明的是，当子类要重写父类中的方法时，其访问权限不能低于父类的访问权限，即当父类的某个函数访问权限为private，那么子类重写该函数时的访问权限就可以根据需求在private、protected、public中任选一个，而当父类的某个函数访问权限为protected，那么子类重写该函数时的访问权限就只能在protected、public中任选一个，以此类推。如果子类中重写函数的访问权限低于父类的访问权限，即父类中函数的访问权限是protected，而子类中重写函数的访问权限是private的话就会出现错误，具体代码如下：
+
+*子类的函数访问权限低于父类的访问权限的调用：*
+
+```php
+class Baby {
+    ......
+
+    protected function talk() {
+        return "我是婴儿，我在用哭说话<br />";
+    }
+}
+
+class Chinese extends Baby {
+    ......
+
+    private function talk() {
+        return '我叫'.$this->getName().'，我是中国人<br />';
+    }
+
+    public function printInfo() {
+        echo $this->talk();
+    }
+}
+
+$chinese = new Chinese('张三', '男', 20);
+$chinese->printInfo();
+```
+
+*子类的函数访问权限低于父类的访问权限的调用结果：*
+
+![Permission-Error](Screenshot/Permission-Error.png)
+
+在上面案例中首先修改了父类Baby中talk函数的访问权限为protected以及函数体，然后把子类Chinese类中的talk()函数的访问权限由public改为private，从而使其访问权限比父类Baby中的访问权限要低，同时添加一个public的函数printInfo()来调用talk()函数，这样的修改从单独的某一个类来说都没有问题，但是因为Baby和Chinese存在父子关系，同时子类中的talk()函数又是重写了父类中的talk()函数，因此其语法就规定其子类的访问权限就不能低于父类的访问权限，而现在子类Chinese中的talk()函数访问权限比父类中的talk()函数的访问权限低，从而造成了整个程序的运行错误。
+
+### 7.6.2 抽象类的意义与使用
+
+在生活中，我们经常遇到这样一类情况，比如菜市场买半成品的熟菜，这样的熟菜回家后只要用锅烧熟，根据自己的口味稍微加些调料进行调整就可以吃了，因为熟菜在被卖掉之前已经由商家进行腌制和调味，又如买回来的手机，只需要插入SIM卡就可以使用，而不需要把手机的零部件进行拼装后再使用。类似上面的示例其实还有很多，接下来把这些案例进行抽象，就可以得出这样一条规律，即这些示例都是帮助用户完成了一套完整流程中的一部分，例如半成品的调制、手机的组装，而用户只需要完成其中的一部分需要用户自定义的部分，如回家后把这些半成品进行加热和进一步调味，以及把不同的SIM卡插入手机，最终通过用户自定义部分流程内容和预先定义流程相结合的方式完善了整个系统。
+
+上面讲的是生活中的例子，我们说面向对象的程序设计是源于生活，读者可以思考下如果此时要用程序的语言来描述上述内容，该如何表达呢？读者可能会发现运用现有的知识无论如何都很难精确的表达出用户自定义实现完整流程中的一部分这一概念，因此在面向对象的编程语言中提出了一个叫做抽象类和抽象函数的概念。在了解抽象类之前需要先了解抽象函数，所谓的抽象函数是一个没有函数实现体，只有函数声明的函数，也就是说不需要在函数的后面加上花括号，而只需要在小括号后面直接添加分号作为结束符，抽象函数的具体定义方法如下：
+
+```php
+abstract function 函数名(参数列表);
+```
+
+读者此时可能会疑惑，为什么要定义一个没有函数实现体的函数，因此设计抽象函数的目的就是为了在子类中能够被重写，而且是必须被重写，目的就是完成一个完整流程中需要用户自定义的部分，从而才能实现最后完整的结果，因此当父类中定义了抽象函数，那么在子类中就必须要进行重写，并完成它的该函数的实现体。了解了抽象函数后，再了解抽象类就方便很多，因为凡是有抽象函数的类，一定是抽象类，但是抽象类不一定要包含抽象函数，并且抽象类中也可以包含其他普通的函数和成员变量，抽象类的具体定义方法如下：
+
+```php
+abstract class 抽象类 {
+
+}
+```
+
+下面就以手机为例，讲解抽象函数和抽象类的具体使用方法，具体代码如下：
+
+```php
+abstract class Mobile {
+    private function startCallFun() {
+        echo '启动电话程序...<br />';
+    }
+
+    public abstract function insertSIMCard($number);
+
+    private function parseSIM() {
+        echo '解析SIM卡程序...<br />';
+    }
+
+    public function callPhone($number) {
+        $this->startCallFun();
+        $this->insertSIMCard($number);
+        $this->parseSIM();
+        echo '拨打电话成功';
+    }
+}
+
+class UserMobile extends Mobile {
+    public function insertSIMCard($number) {
+        echo '插入的电话SIM卡号码为：'.$number.'<br />';
+    }
+}
+
+$userMobile = new UserMobile();
+$userMobile->callPhone('1234567');
+```
+
+*抽象函数和抽象类的调用结果：*
+
+```php
+启动电话程序...
+插入的电话SIM卡号码为：1234567
+解析SIM卡程序...
+拨打电话成功
+```
+
+在上面的案例中首先定义了一个抽象类Mobile，在该类中有一个抽象函数insertSIMCard($number)，并且把电话作为参数传入到该函数中，并且还定义了一个public函数callPhone()用于实现整个完整的流程。定义完抽象类后，接下来就是定义子类UserMobile，该类继承于Mobile，因此就必须要实现insertSIMCard($number)函数，当把该函数的具体实现完毕后就可以创建该子类UserMobile的对象，并且调用callPhone()函数来完成整个打电话的过程，这里还要特别说明的是，当某一个类是抽象类的时候，它就不能产生对象，因此计算机中对象应该是一个具体的实物，而抽象类只是一个概念，因此不论从原理，还是语法上都不允许抽象类产生具体的对象。
+
+### 7.6.3 接口类的意义与使用
+
+在生活中，处上了节中提到的示例外，还有一类情况也是我们经常遇到，比如我们到电器城去买蓝光影碟机，就类似于过去的DVD机一样，我只需要对店员说我要买一个能播放蓝光影片的影碟机就可以，而不需要再详细的说明店员就可以帮我拿一个我所需要的影碟机，影碟机的种类很多、品牌也很多，就意味着它的解析蓝光的方式有很多种，但是只要符合能够解析蓝光光盘的影碟机，就成为蓝光影碟机。类似上面的示例其实还有很多，接下来把这些案例进行抽象，就可以得出这样一条规律，即这些示例都是为某一类产品定义了它所必须的功能，而只要某一个产品满足了这些必须的功能时，那么就把该产品称为是某一类产品，例如只要能够播放蓝光影片的都是蓝光影碟机，而具体的怎么实现播放这些蓝光光碟的，对于用户来说一概不知，而是由厂家来完成的。
+
+上面讲的是生活中的例子，与上一节相同读者也可以思考下如果此时要用程序的语言来描述上述内容，该如何表达呢？读者可能会发现运用抽象函数可以解决，但是抽象函数的目的是为了完成整个流程中确实的一部分，而不是所有的接口，因此抽象函数从意义上来说不妥，虽然语法上可以实现，因此也出现了现有的知识无论如何都很难精确的表达清楚的问题，因此在面向对象的编程语言中提出了一个叫做接口的概念。所谓的接口其实它也是类的一种，只不过在里面所定义的函数都没有函数体，只有函数声明，并且这些声明的函数权限都是public，此外在接口中不能够定义成员变量，只能够定义成员产量，具体定义方法如下：
+
+```php
+interface 接口名称 {
+    public const 常量名称 = 'Hello World';
+
+    public function 接口函数(参数列表);
+}
+```
+
+看到这里读者此时依然会疑惑，为什么要定义一个没有函数实现体的函数，因此设计接口的目的就是为了规定子类中必须有哪些功能，因为只有符合这一要求才能称为是某一个类型，而子类中的其他功能相对于接口定义的函数来说都不是核心功能，因此当定义了接口后，在该接口的子类中就必须重写所有的接口函数，同时完成这些接口函数的所有具体函数体并完成它的该函数的实现体。下面就以蓝光影碟机为例，讲解接口的具体使用方法，具体代码如下：
+
+```php
+interface BlurayPlay {
+    public function playBluray();
+    public function stopBluray();
+    public function nextBluray();
+    public function previousBluray();
+}
+
+class SonyBlurayPlay implements BlurayPlay {
+    public function playBluray() {
+        echo '播放蓝光影碟<br />';
+    }
+
+    public function stopBluray() {
+        echo '停止播放蓝光影碟<br />';
+    }
+
+    public function nextBluray() {
+        echo '播放下一个蓝光影碟<br />';
+    }
+
+    public function previousBluray() {
+        echo '播放上一个蓝光影碟<br />';
+    }
+}
+
+$sonyBlurayPlay = new SonyBlurayPlay();
+$sonyBlurayPlay->playBluray();
+$sonyBlurayPlay->stopBluray();
+$sonyBlurayPlay->nextBluray();
+$sonyBlurayPlay->previousBluray();
+```
+
+*接口的调用结果：*
+
+```php
+播放蓝光影碟
+停止播放蓝光影碟
+播放下一个蓝光影碟
+播放上一个蓝光影碟
+```
+
+在上面的案例中首先定义了一个接口BlurayPlay，在该类中有四个接口函数playBluray()、stopBluray()、nextBluray()、previousBluray()。定义完接口后，接下来就是定义子类SonyBlurayPlay，该类继承于BlurayPlay，因此就必须要实现上述的四个接口函数，当把这些函数的具体实现完毕后就可以创建该子类SonyBlurayPlay的对象，并且调用playBluray()、stopBluray()、nextBluray()、previousBluray()这四个函数来完成整个蓝光影碟使用的过程。这里有两点要特别说明的是，首先当某一个类是接口的时候，它就不能产生对象，因此计算机中对象应该是一个具体的实物，而接口只是一个概念，因此不论从原理，还是语法上都不允许接口产生具体的对象，其次在面向对象的编程中接口是可以多继承的，而抽象类和普通类只能单继承，具体代码如下：
+
+```php
+interface 接口1 {
+
+}
+
+interface 接口2 {
+    
+}
+
+class 子类 implements 接口1, 接口2, ... {
+
+}
+
+class 子类 extends 普通类/抽象类 implements 接口1, 接口2, ... {
+    
+}
+```
+
+## 7.7 小结
+
+通过本章的学习，了解了面向对象编程中的几个基本，但非常重要的概念和意义，首先深入分析了面向对象的基本概念，树立正确的对象分析方法，其次详细分析了对象在在内存中的分配，以及堆和栈的区别，随后详细了解$this指针的意义，以及构造函数在对象创建中的作用，最后深入分析面向对象编程中的三大基本特性，即封装性、继承性、多态性，通过这些知识的学习可以帮助读者深入的了解面向对象的概念和意义，为今后的学习打下坚实的基础，本想内容需要读者更多的自我推敲，形成一个自己的理解。
