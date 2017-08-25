@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 获取属性
+            console.log($("input").attr("value"));
+            // 修改属性
+            console.log($("input").attr("value", "我在修改属性"));
+            // 获取修改后的属性
+            console.log($("input").attr("value"));
+            // 添加一个新的属性
+            console.log($("input").attr("name", "attr-test"));
+            // 获取新添加的属性值
+            console.log($("input").attr("name"));
+        });
+    </script>
+    
+    <title>JQuery节点属性的增加、修改和获取</title>
+</head>
+<body>
+    <form>
+        <input type="text" value="这是属性修改测试" />
+    </form>
+</body>
+</html>

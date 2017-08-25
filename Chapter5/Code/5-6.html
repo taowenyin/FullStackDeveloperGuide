@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <style type="text/css">
+        .red {
+            background: red;
+        }
+    </style>
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 创建一个新的li节点
+            var $new_li = $("<li class='red'>小米</li>");
+            // 把新的li节点插入到ul下面
+            $("ul").append($new_li);
+        });
+    </script>
+    
+    <title>JQuery的新节点创建</title>
+</head>
+<body>
+    <div>手机品牌</div>
+    <ul>
+        <li>诺基亚</li>
+        <li>华为</li>
+    </ul>
+</body>
+</html>

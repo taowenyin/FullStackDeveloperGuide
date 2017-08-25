@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("body").click(function(e) {
+                console.log("Body节点被触发...");
+            });
+            $("#parent").click(function(e) {
+                console.log("父节点被触发...");
+            });
+            $("#child").click(function(e) {
+                console.log("子节点被触发...");
+            });
+        });
+    </script>
+    
+    <title>JQuery节点属性的增加、修改和获取</title>
+</head>
+<body>
+    <div id="parent">
+        <div id="child">子节点</div>
+    </div>
+</body>
+</html>

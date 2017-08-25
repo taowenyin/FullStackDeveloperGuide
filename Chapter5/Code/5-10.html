@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("body").bind("click", function(e) { // 为Body绑定点击事件
+                console.log("Body节点被触发...");
+                if(e.target == e.currentTarget) {
+                    console.log("在Body中，target和currentTarget相同");
+                }else {
+                    console.log("在Body中，target和currentTarget不同");
+                }
+            })
+            $("#parent").bind("click", function(e) { // 为Parent绑定点击事件
+                console.log("父节点被触发...");
+                if(e.target == e.currentTarget) {
+                    console.log("在Parent中，target和currentTarget相同");
+                }else {
+                    console.log("在Parent中，target和currentTarget不同");
+                }
+            });
+            $("#child").bind("click", function(e) { // 为Child绑定点击事件
+                console.log("子节点被触发...");
+                if(e.target == e.currentTarget) {
+                    console.log("在Child中，target和currentTarget相同");
+                }else {
+                    console.log("在Child中，target和currentTarget不同");
+                }
+            });
+        });
+    </script>
+    
+    <title>JQuery节点属性的增加、修改和获取</title>
+</head>
+<body>
+    <div id="parent">
+        <div id="child">子节点</div>
+    </div>
+</body>
+</html>

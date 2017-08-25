@@ -1251,5 +1251,729 @@ width不是myRectangle原型中的属性
 
 ## 5.5 JQuery的DOM操作和AJAX的异步通讯
 
+在Web开发中，除了经常要使用JavaScript来完成各种工作外，另外一个就是使用各种各样的第三方库来实现不同的功能，这些第三方库的使用可以大大提高编程的效率和开发速度，目前比较主流的JavaScript库主要有两个，一个是Google推出的基于MVC架构的AngularJS，标志着下一代Web应用的开始，而另外一个则是从2006年发布以来经过11年发展，被无数Web应用验证的JQuery。从笔者的角度来看，AngularJS更像一个是一个精装房，你需要去熟悉每个房间的作用后才能使用，即使设计者的习惯和你的编程习惯大相径庭，但你还是需要去习惯它，因为他提供功能齐备、性能优良的一整套解决方案，而JQuery更像是一个毛坯房，你可以根据自己的需要去添砖加瓦，虽然有时设计上没有精装房那么精致，但是一切都符合你的习惯。
+
+综上所述，可以知道JQuery的学习成本更低，使用也更为的方便，同时JQuery也能满足目前大部分Web应用的需求，因此本节将以JQuery为基础讲述如何实现Web DOM的操作以及如何通过Ajax与服务器进行通信。
+
+### 5.5.1 JQuery的引入与建议
+
+要把JQuery加入到项目中，首先就会要获取它，目前有两种引入JQuery的方法，一种是采用本地下载源文件后引用到项目中，另一种则是采用CDN的方式在线引用到项目中，下面就来介绍这两种方式的使用方法。
+
+**1、本地下载：** 到笔者撰稿为止，JQuery目前最新的版本是3.2.1，读者可以到它的官方网站（http://jquery.com/）下载。进入官方网站，点击右边的“Download JQuery”进入下载页面，在该页面会看到“Download the compressed, production jQuery 3.x.x”（目前是3.2.1）和“Download the uncompressed, development jQuery 3.x.x”（目前是3.2.1）这两个超链接，读者可以任选一种一个进行下载。这两个的区别在于一个是压缩版（compressed），而另外一个则是非压缩版（uncompressed），所谓压缩版就是通过某些工具把代码中的空行、空格删除，并且把变量名改为非常简单的a、b、c，从而减少JavaScript文件的大小。这样好处是，当浏览器浏览该网页时只需要下载更少的内容就可以显示更加完整的内容，从而提高网页加载的速度。
+
+**2、CDN获取：** CDN的全称是Content Delivery Network，即内容分发网络。其基本思路是尽可能避开互联网上有可能影响数据传输速度和稳定性的瓶颈和环节，使内容传输的更快、更稳定。由于国内网络环境还处于高速发展的阶段，并且一些最新的计算机相关的工具和库都存放在国外的站点上，造成通过国内网络去引用和访问国外这些站点资源时要经过一段很长的路由过程，使得速度非常慢，一旦当中有一个节点发生故障就会造成资源无法获取，因此国内一些公司利用本身资源把国外这些工具和库通过镜像的方式搬到了国内，并当用户要下载这些资源时就通过智能匹配系统为用户选择一个速度最快的节点服务器，从而提高整个网络的速度。目前国内在JavaScript方面做的比较好的两个CDN服务商有两个，一个是BootCDN（http://www.bootcdn.cn/），另一个这是Staticfile CDN（https://www.staticfile.org/）。CND的使用非常方便，进入官网后，在搜索栏搜索要查询的库，例如JQuery就会出现如图5-28所示的界面，然后把这些地址使用script标签包裹起来即可。
+
+![bootcdn](Screenshot/bootcdn.png)
+
+![staticfile](Screenshot/staticfile.png)
+
+图5-28 JQuery在BootCDN和Staticfile CDN中查询的结果
+
+当获取到JQuery的文件或者CND地址后，接下来就是把它放到页面头部。因为JavaScript的脚本引擎总是顺序执行，因此当脚本引擎读取到JQuery的引入地址后，就会从网络上或者本地读取该文件，当读取完毕后就表示JQuery准备完毕，随后开发人员就可以时候使用它进行开发。但是正如上面说的JavaScript脚本引擎是顺序执行的，此时的脚本引擎还未把当期那页面中所有的HTML代码读取完毕，如果贸然使用JQuery对文档进行操作，会可能造成要操作的HTML节点还未读取到，从而导致JQuery代码操作失败，所以要进行JQuery操作的话，一定要等到当前页面的HTML代码全部读取完毕后再执行，要实现该功能就需要把$(document).ready(function() {...})添加到head中，该函数中的document表示当前页面的Web文档，$符号是JQuery中特使的符号，可以把HTML的节点转化为JQuery可以操作的对象，而read(function() {...})函数则表示读取文档完成后执行的回调函数，开发人员的代码正应该添加在此回调函数中，才能保证读取文档中正确，具体代码如下：
+
+```html
+<head>
+<script src="JQuery存放路径/jquery-3.2.1.js"></script>
+<script>
+$(document).ready(function() {
+    // 添加自己的脚本代码
+});
+</script>
+</head>
+```
+
+这里还有两点建议需要特别说明，以保证JQuery代码的正确执行，具体如下：
+
+**1、依赖后置：** 如果使用某些第三方库时，需要依赖于JQuery，那么一定要把JQuery放在这些第三方库之前，以保证在读取这些库之前就已载入JQuery。
+
+**2、样式表前置：** 因为在使用JQuery时经常要修改或读取页面的样式表，因此一定要把所有样式放在所有的script标签之前，以保证在使用JQuery时就已经加载完整的样式表。
+
+### 5.5.2 DOM的理解与选择器
+
+随着Web技术的发展，特别是HTML5技术的日渐成熟，网站的视觉效果越来越炫目，但是如果你用浏览器的开发者工具仔细观察，就会发现在这些绚丽的页面背后实际上就是无数个div、table、span等各种各样标签的增、删、改、查，并且在这些标签上面增、删、改、查各种带有颜色、大小等样式属性的的Class和ID。因此在Web开发中，JavaScript一个很重要的功能就是对这些标签、样式等进行操作，从而实现新内容的添加，老内容的修改，查询以及删除，那么这些页面中标签的集合就称为DOM。所谓DOM（Document Object Model），就是当Web浏览器在读取HTML网页时，除了对这些HTML标签进行渲染之外，还有一个主要功能就是记录这些HTML标签的层次结构，这个层次结构就是DOM，即文档对象模型。此外DOM还提供了页面的导航（就是有了这个功能，才实现了页面的前进和后退），以及增、删、改、查页面元素的工具，才是的JavaScript具有如此强大的功能，但是这里有一个概念要明确，就是DOM并不是JavaScript，而是由W3C组织所定义的一个标准，每种浏览器内核实现的方式都有所不同，但是接口却采用相同的接口。
+
+在DOM中每个HTML元素都被称为节点，而原生的JavaScript提供两种两种方式来检索这些节点，即getElementsByTagName()和getElementsById()这两个函数，如示例代码5-5所示，结果如图5-29所示：
+
+*HTML代码：*
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <title>JS运行环境</title>
+</head>
+<body>
+    <p>Hello HTML</p>
+    <div id="demo">Hello Div</div>
+
+    <!-- JavaScript的DOM操作 -->
+    <script src="js/5-5.js"></script>
+</body>
+</html>
+```
+
+例5-5 JavaScript节点查询
+
+*JavaScript代码：*
+
+```javascript
+console.log(document.getElementById("demo"));
+console.log(document.getElementsByTagName("p"));
+```
+
+*执行结果：*
+
+![base-javascript-selector](Screenshot/base-javascript-selector.png)
+
+图5-29 JavaScript的选择器
+
+在上面的HTML代码中为了防止文件还未加载完成就进行DOM的读取操作，因此把script标签放在body标签的最后，使得浏览器引擎能够在读取完整的HTML代码后在执行JavaScript代码。在JavaScript代码中通过原生的两个节点查询函数来获取制定的节点。从结果可以看出，通过ID查找的结果是唯一的，而通过标签名查找的节点确实一个数组，这是因为在DOM文档中可能同时出现许多个相同的节点名称，但是同一个ID却只会出现一次。
+
+可能此时，很多读者会觉得原生的JavaScript在检索DOM时非常简单，那为什么还需要用JQuery呢？这是因为在早起，特别是HTML5还未标准化之前，没加浏览器在处理DOM时的方式都各有不同，使得如果使用原生的JavaScript会造成代码的不兼容性。虽然到了HTML5标准化之后，这种情况得到了很大的改善，但是每家浏览器多少还是有些不一样，因此JQuery的出现就会为了解决这个问题，即提供提供一致的兼容性，由JQuery来处理各个浏览器的不同，从而实现代码在各个浏览器之间呈现的效果基本相同。此外原生的JavaScript选择节点的方式比较单一，无法满足像CSS这样灵活的选择方式，而JQuery提供了类似CSS的节点选择工具，因此JQuery几乎成为了Web开发的标配沿用至今。
+
+要使用JQuery，首先就要了解和学会选择器的使用，而JQuery的选择器完全继承了CSS的做法，也就是说只要是能通过CSS选择到的节点，那么就可以使用相同的选择器语法，并通过JQuery选择器选择到，接下来在示例代码5-5的基础上添加相应代码，结果如图5-30所示，具体代码如下：
+
+```javascript
+console.log($("#demo"));
+console.log($("p"));
+```
+
+*执行结果：*
+
+![staticfile](Screenshot/base-jquery-selector.png)
+
+图5-30 JQuery基础选择器
+
+从上面的结果不难看出，要使用JQuery检索节点非常方便，只需要通过$("选择器")就可以完成相关的检索，因为在CSS一节中已经讲了很多关于选择器的内容，这里就不再累述，需要查看看完整的选择器可以到W3CSchool的CSS目录下查看，里面有详细的选择器说明。细心的读者会发现，JQuery检索出来的全部是带[]的数组，而使用JavaScript则不同，这是因为通过JQuery检索得到的是一个特殊的JQuery对象集合，这个集合中包含了所有检索到的DOM节点对象，但是各位读者要记住的重要概念是，这些对象的集合虽然都是DOM节点，当并不是DOM对象，而是把DOM对象进行封装的JQuery对象。有个这个对象集合后，JQuery还帮开发人员做件非常重要的事，首先是节点的自动遍历，第二件事是实现代码的串联。
+
+先说第一件事，自动遍历的功能可以大大提高开发人员的编程效率，例如通过$(".red")检索得到一个JQuery对象集合，那么开发人员就可以直接通过JQuery提供的增、删、改、查的函数来实现该节点内容的修改，而使用原生的JavaScript则需要在通过循环遍历的方式进行修改。看到这里读者可能会问，因为“.red”是一个类别选择器，所以可能检索出来多个，但我只想修改其中的某一个，如果直接对集合进行操作，岂不是就会造成不需要修改的也被修改了？这里有一个先决条件就是，JQuery默认通过选择器选择的节点就是开发人员要操作的节点，如果这个节点是很多个，那么就代表要对这些很多个节点进行操作，如果这个节点只有一个，那么就是对一个节点进行操作，具体的情况完全取决于前面的选择器，因此开发人员在使用选择器时应该正确的添加选择器，以便帮助JQuery找到所需要的那个节点或一群节点。
+
+第二件事，实现代码的串联可以大大减少开发代码的数量，因为每个JQuery函数都会返回当前的JQuery对象，从而实现了代码的串联，但是要实现该功能，那么函数就必须使用JQuery自带的函数，而不能使用JavaScript或者开发人员自定义的函数。
+
+### 5.5.3 Web页面中的DOM操作
+
+通常来说对于DOM的操作主要分为三个方面，即HTML节点的操作、HTML节点属性的操作以及节点样式的操作。其中HTML节点的操作主要是实现节点的增、删、改、查，HTML节点属性的操作主要是实现节点的文本内容、事件对象等节点固有属性的操作，最后一个顾名思义就是对接点样式的修改。而JQuery则在此基础上增加了遍历的功能，具体如下：
+
+**1、选择器：** 该类主要通过各种选择器的设置查找DOM中的制定节点，上一节中已经叙说，这里就不再累述。
+
+**2、DOM操作：** 该类函数主要对DOM节点进行增、删、改，并且可以实现节点的嵌套操作。
+
+在DOM操作中，除了查找节点之外，很多时候需要添加一个节点，例如通过HTTP通信的方式获取数据，并把这些数据添加节点中，这样的操作就需要创建新的节点，如示例代码5-6所示，运行结果如图5-31所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <style type="text/css">
+        .red {
+            background: red;
+        }
+    </style>
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 创建一个新的li节点
+            var $new_li = $("<li class='red'>小米</li>");
+            // 把新的li节点插入到ul下面
+            $("ul").append($new_li);
+        });
+    </script>
+
+    <title>JQuery的新节点创建</title>
+</head>
+<body>
+    <div>手机品牌</div>
+    <ul>
+        <li>诺基亚</li>
+        <li>华为</li>
+    </ul>
+</body>
+</html>
+```
+
+例5-6 JQuery的节点创建
+
+*执行结果：*
+
+![jquerry-new-node](Screenshot/jquerry-new-node.png)
+
+图5-30 创建新的节点
+
+首先先看HTML中body代码，在改代码中创建了无序列表ui，并添加了两个列表项，然后在head中添加了一个用于把背景设置为红色自定义Class样式，并命名为red，此时的样式没有作用于任何的HTML代码，随后通过script中载入JQuery，并添加文档准备完毕的事件处理函数$(document).ready()。在ready()函数中你会发现要通过JQuery创建一个节点是如此的简单，只需要使用$()符号把正确的HTML填入即可，$()会自动把填入的HTML代码转化为JQuery能够识别的对象，并且通过JQuery的选择器查找到ul节点，再通过节点函数append把新增加的节点插入到ul内部，从浏览器的开发者工具可以看到，在ul标签内确实添加了一个新的li节点。
+
+看完节点的创建，接下来看节点的插入函数，该类函数比较多，虽然使用起来比较简单，但很多初学者都容易混淆带To和不带To的区别。在JQuery的插入函数中，有类似A.append(B)和A.appendTo(B)这样的函数，其实这两个函数是相同的意思，只是表达方式不同，在A.append(B)中表示把B插入到A中，而A.appendTo(B)则是把A插入到B中，具体如表5-7所示。
+
+表5-7 JQuery中常用的插入函数
+
+| 方法 | 描述 | 示例代码 |
+| :-: | :- | :- |
+| append() | 在节点内部的最后追加元素。 | $(”选择器“).append(”JQuery新节点“) |
+| appendTo() | 将节点追加到指定节点内部。 | $(”JQuery新节点“).appendTo(”选择器“) |
+| prepend() | 在节点内部的头部追加元素。 | $(”选择器“).prepend(”JQuery新节点“) |
+| prependTo() | 将节点追加到指定节点内部的头部。 | $(”JQuery新节点“).prependTo(”选择器“) |
+| after() | 在指定节点之后添加新节点（注意：不是内部）。 | $(”选择器“).after(”JQuery新节点“) |
+| insertAfter() | 和To的意思相似，将节点插入到指定节点之后 | $(”JQuery新节点“).insertAfter(”选择器“) |
+| before() | 在指定节点之前添加新节点（注意：不是内部）。 | $(”选择器“).before(”JQuery新节点“) |
+| insertBefore() | 和To的意思相似，将节点插入到指定节点之前 | $(”JQuery新节点“).insertBefore(”选择器“) |
+
+在JQuery中要删除一个节点的方法也非常简单，JQuery一共提供了三个提供删除功能函数，分别是remove()、detach()和empty()，这三个都有各自的特点，具体如下：
+
+（1）remove()函数：该函数有两种表达方式，分别是$(”要删除节点的选择器“).remove()，以及$(”要删除节点的选择器“).remove(”对要删除节点的选择器再进行筛选的选择器“)，具体来说第一种表示查询出相关的节点后直接删除，而第二种这是在查询结果中再进行筛选，并找出最终的节点进行删除。在执行remove()函数时，除了会删除节点之外，还会返回被删除的节点，如示例代码5-7所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <style type="text/css">
+        .red {
+            background: red;
+        }
+    </style>
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 创建一个新的li节点
+            var $new_li = $("<li class='red'>小米</li>");
+            // 把新的li节点插入到ul下面
+            $("ul").append($new_li);
+
+            // 删除节点，并把删除的节点打印
+            var $delete_li = $("ul li").remove("li[class='red']");
+            console.log($delete_li);
+        });
+    </script>
+
+    <title>JQuery节点删除</title>
+</head>
+<body>
+    <div>手机品牌</div>
+    <ul>
+        <li>诺基亚</li>
+        <li>华为</li>
+    </ul>
+</body>
+</html>
+```
+
+例5-7 JQuery的节点删除
+
+*执行结果：*
+
+![jquerry-delete-node](Screenshot/jquerry-delete-node.png)
+
+图5-30 删除节点函数的使用
+
+上面的代码非常容易理解，就不再阐述，这里要特别说明的是remove()函数的返回值，因为在上图中打印的返回值不仅包含了要删除的节点，还包含了没有删除的节点，这是因为remove()返回值实质上是返回要删除节点的选择器值，而如果还需要对该选择器值进行二次过滤时，那么不会对返回值造成影响，因此remove()的返回值取决于函数左边的选择器。
+
+（2）detach()函数：该函数和remove()的功能相同，但区别在于使用remove()函数删除的节点，除了节点本身被删除之外，附加在该节点上的事件、数据等都会一并被删除，但是detach()则不同，detach()删除的节点不会移除事件和数据，当下次把删除的节点再移回来时，会和被移除之前保持一致，因此detach()函数特别适合那些因为某些原因需要被临时移除，但是又会马上恢复的节点。
+
+（3）empty()函数：该函数用于清空某个元素的内部所有的内容和节点，也包括子节点，如表5-8所示。
+
+表5-8 JQuery中常用的删除函数
+
+| 方法 | 描述 | 示例代码 |
+| :-: | :- | :- |
+| remove() | 删除指定节点。 | $(”要删除节点的选择器“).remove()或$(”要删除节点的选择器“).remove(”对要删除节点的选择器再进行筛选的选择器“) |
+| detach() | 删除指定节点。 | $(”要删除节点的选择器“).detach()或$(”要删除节点的选择器“).detach(”对要删除节点的选择器再进行筛选的选择器“) |
+| empty() | 清空指定节点内部的所有内容。 | $(”选择器“).empty() |
+
+上面讲了DOM的增加、删除，并且在上一节也讲了查找，那么接下来就是DOM的修改，DOM的修改主要涉及三类函数，分别是节点的克隆、节点的替换和节点的包裹，如表5-9所示。
+
+表5-9 JQuery中常用的修改函数
+
+| 方法 | 描述 | 示例代码 |
+| :-: | :- | :- |
+| clone() | 克隆一个节点，当函数参数为true时，则表示连绑定的事件也一同复制。 | $(”选择器“).clone()或$(”选择器“).clone(true) |
+| replaceWith() | 将选择器A的替换为B。 | $(”A选择器“).replaceWith(”B选择器“) |
+| replaceAll() | 将选择器B的替换为A。 | $(”A选择器“).replaceAll(”B选择器“) |
+| wrap() | 将选择器B的包裹在每个的A选择器结果之外，如示例代码5-8所示。 | $(”A选择器“).wrap(”B选择器“) |
+| wrapAll() | 将选择器B的包裹在所有的A选择器结果之外，如示例代码5-8所示。 | $(”A选择器“).wrapAll(”B选择器“) |
+| wrapInner() | 将选择器A的包裹在每个的B选择器结果之外，如示例代码5-8所示。 | $(”A选择器“).wrapInner(”B选择器“) |
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("li").wrap("<strong></strong>");
+
+            $("li").wrapAll("<strong></strong>");
+
+            $("li").wrapInner("<strong>手机</strong>");
+        });
+    </script>
+    
+    <title>JQuery节点的包裹</title>
+</head>
+<body>
+    <div>手机品牌</div>
+    <ul>
+        <li>诺基亚</li>
+        <li>华为</li>
+    </ul>
+</body>
+</html>
+```
+
+例5-6 JQuery的节点包裹
+
+*执行结果：*
+
+![jquerry-wrap-node](Screenshot/jquerry-wrap-node.png)
+
+图5-31 包裹节点函数的使用
+
+从上面的结果可以看出，wrap()函数会包括每一个通过选择器选择出来的节点，而wrapAll()函数则是把这些选择器选择出来的节点作为一个整体，在外层进行包括，这里值得注意的是，如果查询出来的节点中掺杂了其他类型的节点，那么也会一并被包裹在内，最后是wrapInner()，该函数会在所有选择器选择出来的每一个节点内容的外面添加一层包裹。
+
+**2、属性和CSS：** 该类函数主要用于增、删、改、查相关属性，如高度、大小等，以及修改相关的CSS样式。
+
+在JQuery中要增、删、改、查某个节点属性非常的方便，只需要用到两个函数，分别是attr()函数和removeAttr()函数，其中attr()函数主要完成属性的增加、修改和获取，而removeAttr()函数则完成属性的删除。首先通过示例代码5-9来展示属性的增、删、改、查。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 获取属性
+            console.log($("input").attr("value"));
+            // 修改属性
+            console.log($("input").attr("value", "我在修改属性"));
+            // 获取修改后的属性
+            console.log($("input").attr("value"));
+            // 添加一个新的属性
+            console.log($("input").attr("name", "attr-test"));
+            // 获取新添加的属性值
+            console.log($("input").attr("name"));
+        });
+    </script>
+    
+    <title>JQuery节点属性的增加、修改和获取</title>
+</head>
+<body>
+    <form>
+        <input type="text" value="这是属性修改测试" />
+    </form>
+</body>
+</html>
+```
+
+例5-6 JQuery的属性增加、修改和获取
+
+*执行结果：*
+
+```JavaScript
+这是属性修改测试
+[input, prevObject: jQuery.fn.init(1)]
+我在修改属性
+[input, prevObject: jQuery.fn.init(1)]
+attr-test
+```
+
+从上面的结果可以看出，当attr()只有一个参数的时候表示获取某一个属性的值，而当attr()有两个参数时，则用于属性的添加和修改，并且该函数会返回修改属性后的JQuery对象。在attr()函数中，第一个参数表示要查询的属性，第二个参数就表示要修改的值，如果要查询的属性不存在，那么就会把该属性作为新属性进行添加，并且值等于第二个参数，如果该属性能够查询到，那么就把该属性的值设置为第二个参数，从而实现了属性的增加、修改和获取。如果一次性想设置多个属性，那么就可以使用传入对象的方式完成，这里要特别说明的是，批量添加属性时，属性名称不需要加引号，但是属性值需要加引号，具体代码如下：
+
+```javascript
+$("选择器").attr({
+    属性: "属性值",
+    属性: "属性值",
+    ...
+    属性: "属性值"
+})
+```
+
+了解了属性的增加、修改和获取后，接下来就是属性的删除函数removeAttr()，该函数的使用非常简单，只需要把要删除的属性名称作为参数填入removeAttr(“要删除的属性名”)即可。在了解了属性操作之后，接下来就是样式操作，样式操作主要包含样式的设置和获取、样式的追加、样式的移除，以及样式的判断，这些功能分别对应attr()、addClass()、removeClass()，以及hasClass()这四个函数，这几个函数中重点要说明的是attr()和addClass()函数的区别，因为其他函数都只要传入相应的样式名称即可完成操作，非常简单，而hasClass()则返回boolean类型来判断样式时候存在。
+
+所谓样式的值，其实也是节点class属性的值，那么既然是属性就可以通过attr()函数进行操作，但是attr()同时是对属性值的进行修改，但是样式属性值有一个特点就是可以填入多个样式值，并以空格作为间隔，所以attr无法方便的对样式值里面的某一个样式进行操作，因此JQuery提供了addClass()函数，该函数可以添加一个或多个样式，而不需要再通过复杂的attr()操作来完成。
+
+接下来重点来说下JQuery节点中很容易混淆的两个属性函数，分别是text()和val()，text()是用于设置设置节点内容，而val()则是用于设置节点value属性的值，一般来说text()函数用于普通的节点，例如<p></p>、<b></b>等，都可以设置这些节点的显示内容，而val()则更多的用于表单控件中，因为表单控件的值很多是放在value属性中，如text、button等，因此text()和val()这两个函数的应用场合不同，需要注意区分。
+
+**3、遍历：** 该类函数主要对于检索出来的DOM集合进行遍历，例如在这个集合你查找第一个、添加一个新对象等。
+
+在JQuery中遍历主要用于检索出想要的元素，因为很多时候并不是所有节点都会添加上唯一的标示用于检索，因此就需要找到一个父节点，然后一级级的向下或向上或向下搜索，这个时候遍历就起到非常大的作用。JQuery中遍历函数按照方向分类可以分为三类，第一类是向下搜索函数children()，第二类是向上搜索函数，分别为parent()、parents()、，最后是平行搜索函数，分别为next()、nextAll()、prev()、prevAll()、siblings()。下面通过表5-10进行说明。
+
+表5-10 JQuery中遍历函数的使用
+
+| 方法 | 描述 | 示例代码 |
+| :-: | :- | :- |
+| children() | 查询节点的所有子节点，当参数中传入选择器字符串时，则在子节点中进行二次过滤。 | $(”选择器“).children()或$(”选择器“).children("选择器") |
+| parent() | 查询节点的上一级父节点，并返回，这里要注意的是parent()只查询一级。当参数中传入选择器字符串时，则在父节点中进行二次过滤。 | $(”选择器“).parent()或$(”选择器“).parent(”选择器“) |
+| parents() | 查询节点的所有父节点，并返回，这里要注意和parent()进行区分，因为parents()会把所有的父节点，直到html节点为止都进行返回。当参数中传入选择器字符串时，则在父节点中进行二次过滤。 | $(”选择器“).parents()或$(”选择器“).parents(”选择器“) |
+| next() | 查询节点后面的一个元素，当参数中传入选择器字符串时，则在结果中进行二次过滤，如果后面的节点不满足选择器，则函数就不返回对象。 | $(”选择器“).next()或$(”选择器“).next(”选择器“) |
+| nextAll() | 查询节点后面的所有元素，当参数中传入选择器字符串时，则在结果中进行二次过滤。 | $(”选择器“).nextAll(”选择器“) |
+| prev() | 查询节点前面的一个元素，当参数中传入选择器字符串时，则在结果中进行二次过滤，如果前面的节点不满足选择器，则函数就不返回对象。 | $(”选择器“).prev()或$(”选择器“).prev(”选择器“) |
+| prevAll() | 查询节点前面的所有元素，当参数中传入选择器字符串时，则在结果中进行二次过滤。 | $(”选择器“).prevAll(”选择器“) |
+| siblings() | 查询节点同级的所有元素，也就是nextAll()和prevAll()函数的结果集合，当参数中传入选择器字符串时，则在结果中进行二次过滤。 | $(”选择器“).siblings(”选择器“) |
+
+### 5.5.4 深入理解JQuery中的事件响应
+
+在上一小节中我们讲了如何通过JQuery进行DOM操作，但是读者肯定发现这些界面都不够灵活，也没有交互，这是因为在这些代码中没有添加相关的事件处理，因此都是让程序直接运行，没有任何的人为干预，而如果要让Web页面实现交互，那么就需要使用本节讲阐述的事件响应和事件处理。虽然传统的JavaScript中已经提供了一些事件处理函数，例如表单中的点击事件和提交事件，但是JQuery在此基础上进行了扩展，并且让这些事件处理变的更为简单和方便。
+
+要了解JQuery中的事件处理函数，首先从我们非常熟悉的函数$(document).ready()开始，该函数是页面加载完毕后的处理函数，但这里要要注意的是页面加载完毕指的是DOM加载完毕，而不是所有的资源加载完毕，理解这点非常重要。例如在页面中使用<img />标签加载了一张存放在网络上的图片，那么当脚本引擎执行到ready()的处理函数时表示页面已经加载了<img />标签，并且可以通过JQuery对该标签进行操作，但是此时脚本引擎可能还未把该网络上的图片加载完毕，所以如果此时要对该图片进行操作就会有很大可能操作失败，因为图片的很多属性还未完整获得，那么有没有办法解决这个问题呢？那肯定是有的。在JQuery中还提供了一个页面加载完毕的处理函数，即$(window).load(function(){...})，该函数和ready()的区别就在于load()函数是要等所有资源加载完毕后再执行回调函数，那么此时有读者可能就会问，既然load()函数比ready()函数加载的内容更为完整，为什么还要使用ready()，而不是load()？这是因为ready()速度快，因为对于大部分的Web应用来说，只要DOM加载完毕就可以开始工作，而一些展示性的图片可以让它们在后台慢慢加载，所以有的网站在网络不好时，可以看到页面中的图片一张张被加载，而正常的页面跳转等操作却可以正常执行，而对于有些网页，例如在线的图片编辑软件，则需要在图片加载完毕后再进行操作，因为很多操作需要依赖完整的资源属性，所以此时就需要用load()函数来完成。
+
+当页面加载完毕后就可以在回调函数中进行事件的绑定和操作。在JQuery中，事件的绑定有两个方法，第一种是使用专门的绑定函数进行事件绑定，第二种则是直接为节点事件添加处理函数，从笔者的角度来说更加喜欢第一种方式，因为这种方式更加的灵活，也能提供统一的事件绑定方式。因此这里先说第一种事件绑定方式，随后再说第二种方式。所谓专门的绑定函数就是使用JQuery中的on()，具体如下函数。其实事件绑定函数还有一个，即bind()，但是该函数在JQuery 3.0以上就已经被弃用了，所谓弃用，并不是代表不能用，而是不再为维护，并且在未来的某一天会从源码中直接移除，而on()函数则是在JQuery 1.7中增加的新函数，并且得到持续的维护，所以JQuery官方推荐使用on()函数来进行事件绑定，而不是使用bind()函数。
+
+```javascript
+JQuery对象.on("事件类型"[, "选择器"][, 数据对象], 事件处理函数)
+```
+
+从上面函数声明可以看出，on()函数最少可以只传递两个参数，一个是事件类型，另一个则是事件处理函数。JQuery中事件类型主要分为四大类，分别为浏览器事件（Browser Events）、表单事件（Form Events）、键盘事件（Keyboard Events）、鼠标事件（Mouse Events），具体如表5-11、5-12、5-13、5-14所示。
+
+表5-11 JQuery的浏览器事件
+
+| 事件类型 | 事件描述 |
+| :-: | :- |
+| resize | 浏览器窗口尺寸改变时触发。 |
+| scroll | 当用户在节点内执行了滚动操作时触发。 |
+
+表5-12 JQuery的表单事件
+
+| 事件类型 | 事件描述 |
+| :-: | :- |
+| blur | 一个节点失去焦点将触发，虽然该事件开始时只在表单内使用，当现在适用于所谓的节点。 |
+| change | 一个表单节点的值发生改变时将触发。此事件仅限用于input元素，textarea和select元素。对于下拉选择框，复选框和单选按钮，当用户用鼠标作出选择，该事件立即触发，但对于其他类型的input元素，该事件触发将推迟，直到元素失去焦点才会触点。 |
+| focus | 当一个节点获得焦点时触发，获取焦点的方式有两种，一种是鼠标点击，还有一种是使用Tab键进行切换。 |
+| select | 当用户在一个元素中进行文本选择时会触发。此事件只能用在text和textarea。 |
+| submit | 当用户试图提交表单时会触发。 |
+
+表5-13 JQuery的键盘事件
+
+| 事件类型 | 事件描述 |
+| :-: | :- |
+| keydown | 键盘按键按下时触发。 |
+| keypress | 键盘点击时触发。 |
+| keyup | 键盘按键弹起时触发。 |
+
+表5-14 JQuery的鼠标事件
+
+| 事件类型 | 事件描述 |
+| :-: | :- |
+| click | 鼠标点击时触发。 |
+| contextmenu | 鼠标右键时触发。 |
+| dblclick | 双击鼠标时触发。 |
+| hover | 鼠标经过节点时触发。 |
+| mousedown | 鼠标按下时触发。 |
+| mouseenter | 鼠标移入节点时触发，不会产生，冒泡事件 |
+| mouseleave | 鼠标移出节点时触发，不会产生冒泡事件。 |
+| mousemove | 鼠标在节点内部移动时触发。 |
+| mouseout | 鼠标移出节点时触发。 |
+| mouseover | 鼠标移入节点时触发。 |
+| mouseup | 鼠标弹起时触发。 |
+
+当需要绑定事件时只需要把上表中的事件类型名称作为字符串传入第一个参数即可。在了解完事件类型后，接下来看事件的事件处理函数，所谓事件处理函就是在事件触发时进行处理的函数，该函数可以采用两种方式，一种是带参数的事件处理函数function(e){...}，另外一种是不带参数的事件处理函数function(){...}，这两种方式唯一的区别就是参数，该参数就是事件对象（Event Object），用于记录事件相关的信息，常用的事件信息名称有target、currentTarget、data、pageX、pageY、type、which、metaKey，要获取这些信息只需要通过“e.事件信息名称”即可，这些常用的事件信息具体如表5-15所示。
+
+表5-14 JQuery的常用事件信息
+
+| 事件类型 | 事件描述 |
+| :-: | :- |
+| target | 触发当前事件的对象 |
+| currentTarget | 事件冒泡过程中的当前DOM对象 |
+| data | 事件数据 |
+| pageX | 发生事件时，鼠标相对Web浏览器的X轴坐标。 |
+| pageY | 发生事件时，鼠标相对Web浏览器的Y轴坐标。 |
+| type | 触发事件类型，和表5-11至表5-14的内容一致。 |
+| which | 获取触发鼠标或者键盘事件的按键。 |
+| metaKey | 如果是MAC，那就是判断时候按下Meta键，如果是Windows，那么就是判断时候按下Win键。如果按下该值就是true，否则就是false。 |
+
+这里要特别说明有三个事件信息，分别是data、target和currentTarget。先说事件数据data，上面讲到在绑定事件时最少可以传递两个参数，分别是事件类型和事件处理函数，还有两个是可选参数，其中第二个可选参数就是事件数据，该事件数据实际上是一个以键值对保存的JS对象，当绑定事件并触发事件时，就可以通过事件对象获得，例如“事件对象.data.数据Key值”这样的形式，但是采用这种方式无法实现事件数据的动态化，而需要都进行事件的重新绑定，这样显然是不合适的，因此JQuery提供了另外一个函数来模拟指定事件的触发，并且向事件内传递参数，该函数就是trigger("事件类型", 事件数据对象)，当节点绑定事件后就可以通过该函数进行触发，并且传入相应的事件数据对象，而不需要重新绑定事件。
+
+第二个要讲的就是target和currentTarget。要了解事件触发是这两个参数的区别，有限就必须了解JavaScript中的事件冒泡效应。所谓事件冒泡，其实就是一种事件传递的方式，即当子节点触发一个事件时，父节点、父父节点，直至bod节点对于该事件的处理方式，下面通过一个例子来进行说明，如示例代码5-10所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("body").bind("click", function(e) { // 为Body绑定点击事件
+                console.log("Body节点被触发...");
+            })
+            $("#parent").bind("click", function(e) { // 为Parent绑定点击事件
+                console.log("父节点被触发...");
+            });
+            $("#child").bind("click", function(e) { // 为Child绑定点击事件
+                console.log("子节点被触发...");
+            });
+        });
+    </script>
+    
+    <title>JQuery节点属性的增加、修改和获取</title>
+</head>
+<body>
+    <div id="parent">
+        <div id="child">子节点</div>
+    </div>
+</body>
+</html>
+```
+
+例5-10 JQuery的事件冒泡
+
+*执行结果：*
+
+```JavaScript
+子节点被触发...
+父节点被触发...
+Body节点被触发...
+```
+
+从结果可以看出当子节点触发点击事件时，不仅子节点执行了处理函数，而且子节点的父节点，直到Body节点都触发了点击事件，这就是JavaScript中的事件冒泡效应，就像水底的一个小气泡，一点点的向上移动，直到浮出水面。有时这样的事件冒泡效应会带来很多烦恼，比如不想让父节点进行相应，只想在触发该事件的对象中相应，那么此时就需要调用事件对象的stopPropagation()函数来停止事件的冒泡。除此之外，JQuery有些绑定的事件也可以不产生冒泡效应，例如mouseenter和mouseleave这两个事件，因此如果不想让鼠标进入节点和离开节点时产生冒泡事件，那么就建议不要是mouseout和mouseover，而改为mouseenter和mouseleave。
+
+那么现在再回到target和currentTarget，这两个事件信息的区别就在于target表示的是触发事件的对象，而currentTarget如果在触发节点类，那么就和target值的是同一个对象，如果是经过冒泡后的事件，那么currentTarget就是至当前触发该事件的DOM对象，即target的父节点，下面在例5-10的基础上进行修改，代码如下：
+
+```javascript
+$("body").bind("click", function(e) { // 为Body绑定点击事件
+    console.log("Body节点被触发...");
+    if(e.target == e.currentTarget) {
+        console.log("在Body中，target和currentTarget相同");
+    }else {
+        console.log("在Body中，target和currentTarget不同");
+    }
+})
+$("#parent").bind("click", function(e) { // 为Parent绑定点击事件
+    console.log("父节点被触发...");
+    if(e.target == e.currentTarget) {
+        console.log("在Parent中，target和currentTarget相同");
+    }else {
+        console.log("在Parent中，target和currentTarget不同");
+    }
+});
+$("#child").bind("click", function(e) { // 为Child绑定点击事件
+    console.log("子节点被触发...");
+    if(e.target == e.currentTarget) {
+        console.log("在Child中，target和currentTarget相同");
+    }else {
+        console.log("在Child中，target和currentTarget不同");
+    }
+});
+```
+
+*执行结果：*
+
+```JavaScript
+子节点被触发...
+在Child中，target和currentTarget相同
+父节点被触发...
+在Parent中，target和currentTarget不同
+Body节点被触发...
+在Body中，target和currentTarget不同
+```
+
+从结果可以验证上面的说法，在Child节点中target和currentTarget相同，而在后面的冒泡事件处理函数中这两个事件信息就不相同，因为currentTarget表示的是当前冒泡时间的DOM对象。
+
+最后来讲事件绑定函数中第一个可选参数，该参数是一个选择器，如果该参数为null，则绑定函数直接忽略该参数，这类事件绑定称为直接事件，而如果绑定函数不为null，那么该事件就变为了委托事件。所谓的直接事件通俗来说就是我直接让事件处理对象来处理事件，即直接把事件绑定到某一个节点对象，而委托事件则不是直接绑定到一个目标节点上，而是绑定到目标节点的父节点上，委托父节点来管理子节点的事件处理，具体代码如下：
+
+```javascript
+$( "#dataTable tbody" ).on( "click", "tr", function() {
+  console.log( $( this ).text() );
+});
+```
+
+在上面的代码中，为表格绑定了一个点击事件，但其实是为表格中的每一个表格项绑定了事件，该事件只有在点击表格项的时候才会起作用。使用委托事件有如下两个优点：
+
+1、自动绑定有效事件：委托事件可以防止节点存在的情况下频繁的绑定事件和解绑事件，例如在表格的处理中，只有表格项才能有事件处理，但是表格经常要删除和添加，如果不用委托事件，那么每删除一个表格项就需要解绑事件，而每添加一个表格项就需要增加事件绑定，这样的做法效率很低，因此采用委托事件就可以让表格自己来处理表格项的事件。
+
+2、减少系统开销：委托事件的另一个好处就是，当子节点比较多时，如果一个个去绑定事件，那么系统的开销会非常大，而如果采用委托事件，那么只需要在父节点上绑定一个事件，子节点就相当于也绑定了事件。
+
+既然有事件绑定，那么就一定有事件解绑，JQuery的事件解绑的使用非常简单，就是off()函数，具体代码如下。off()函数除了没有事件数据之外，其他方法和on()函数相同，读者可以参考使用。
+
+```javascript
+JQuery对象.off("事件类型"[, "选择器"], 事件处理函数)
+```
+
+上面就是第一种事件绑定的方法，接下来就说第二种事件绑定方法，该方法非常简单，因此就举一个例子进行说明，如示例代码5-11所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./js/3rdparty/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("body").click(function(e) {
+                console.log("Body节点被触发...");
+            });
+            $("#parent").click(function(e) {
+                console.log("父节点被触发...");
+            });
+            $("#child").click(function(e) {
+                console.log("子节点被触发...");
+            });
+        });
+    </script>
+    
+    <title>JQuery节点属性的增加、修改和获取</title>
+</head>
+<body>
+    <div id="parent">
+        <div id="child">子节点</div>
+    </div>
+</body>
+</html>
+```
+
+例5-11 JQuery的简单事件绑定
+
+*执行结果：*
+
+```JavaScript
+子节点被触发...
+父节点被触发...
+Body节点被触发...
+```
+
+例5-11是对例5-10的一个修改，在这个例子中通过事件函数来进行事件的绑定，绑定的函数名和事件类型完全相同，并且回调函数的使用也和on()函数相同，唯一的不同就是数据对象传入时的位置，完整的函数声明如下：
+
+```javascript
+JQuery对象.事件类型名([数据对象,] 事件处理函数);
+```
+
+### 5.5.5 Ajax异步通讯的理解和使用
+
+在了解了DOM操作和事件处理后，你会发现整个页面已经能动起来了，并且使得Web具有很好的交互性，但是此时Web中的数据始终保持不变，这是因为还没有和后台服务器进行数据交互，因此本节将会讲解如何通过Ajax进行数据交互和解析。所谓Ajax并不是一门语言，而是多种技术的统称，目前Ajax已经成为Web中HTTP通信的标准方式，几乎所有的网站前台都是通过Ajax来完成与后台的交互，并且由于浏览器的支持，Ajax的使用几乎不需要使用任何插件就可以在任何浏览器上使用，并且Ajax可以实现局部数据的刷新，也就是说当数据获取完毕后，不需要进行整个页面的刷新，而只需要进行局部的数据更改即可，同时Ajax采用数据的异步通信，也就是说当使用Ajax通信时，会在浏览器内部启动一条线程，在该线程中完成整个数据的交互，而不会在界面的主线程中运行，当数据获取完毕后再把数据推送到主线程中进行解析，这样可以使得网络通信时也不会影响界面操作，从而提高了Web应用的体验。
+
+虽然Ajax得到了大部分浏览器的支持，使得通过原生的JavaScript就可以实现Ajax的各种通信，但是每个浏览器多少在使用细节上还是有许多不同的地方，因此JQuery就对这些不同点进行了封装，使得所有浏览器都采用统一的Ajax接口，并且使得Ajax的使用变得更为简单和方便。JQuery中关于Ajax的核心函数一共就只有六个函数，并且并且函数可以按照从底层到高层的方式进行划分，其中最底层的函数为ajax()，该函数实现了最核心Ajax的功能，第二个层次的函数就是load()、get()和post()，这三个函数根部不同的业务对ajax()函数进行了二次的封装，得到更加精简的数据通信方式，最后一个层次就是getScript()和getJSON()，这两个函数不仅在业务层进行了封装，而且把数据类型也进行了封装，接下自下而上的对六个函数进行详细的说明。
+
+**1、ajax()：** 该函数实际上使用并不是很多，因为上层函数已经可以完成大部分的工作，但是了解该函数的使用有助于其他高层函数的深刻理解。ajax()函数有两种形式，具体如下：
+
+```javascript
+ajax( "发送HTTP请求的服务器地址" [, Ajax的通信参数设定对象 ] );
+ajax( [ Ajax的参数设定对象 ] )
+``` 
+
+其中核心的就是Ajax的通信参数对象设定，既然是对象，那么就是以键值对的形式进行保存，具体如表5-15所示。
+
+表5-15 ajax函数中常用通信参数
+
+| 参数名称 | 默认值 | 参数说明 |
+| :-: | :- | :- |
+| beforeSend | function( jqXHR jqXHR, PlainObject settings ) | 请求发送前的回调函数，用来修改请求发送前jqXHR，即JavaScript中Ajax的请求对象XMLHttpRequest，但是JQuery把其封装为jqXHR，该函数可以用来设置自定义HTTP头信息等。如果在beforeSend函数中返回false，该HTTP请求将被取消。 |
+| complete | function( jqXHR jqXHR, String textStatus ) | 请求完成后回调函数。该回调函数得到2个参数： jqXHR对象和一个描述请求状态的字符串，该字符串描述了请求的结果状态，一共有7个，分别为"success"、"notmodified"、"nocontent"、"error"、"timeout"、"abort"和"parsererror"。 |
+| contentType | 'application/x-www-form-urlencoded; charset=UTF-8' | 指定发送到服务器的内容类型。 |
+| data |  | 发送到服务器的数据。 |
+| dataType |  | 从服务器返回期望的数据类型，如果没有指定，jQuery将尝试通过MIME类型的响应信息来智能判断是xml、json、script、html中的哪一个。 |
+| error | function( jqXHR jqXHR, String textStatus, String errorThrown ) | 请求失败时调用此函数。jqXHR对象描述发生错误类型的一个字符串和捕获的异常对象。如果发生了错误，textStatus除了得到null之外，还可能是timeout、error、abort以及parsererror。 并且errorThrown接收HTTP状态的文本部分，如“Not Found”、“Internal Server Error”等。 |
+| method | "GET" | HTTP请求方法，例如"POST"、"GET "、"PUT"等。 |
+| mimeType |  | 用来覆盖XHR中的MIME类型。 |
+| statusCode |  | 一个包含HTTP响应状态码，以及对应处理函数的对象。 |
+| success | function( Anything data, String textStatus, jqXHR jqXHR ) | 请求成功后的回调函数，其中data是从服务器返回的数据，textStatus是一个描述状态的字符串。 |
+| timeout |  | 设置请求超时时间，以毫秒为单位。 |
+| url |  | 发送HTTP请求的服务器地址。 |
+| mimeType |  | 用来覆盖XHR中的MIME类型。 |
+| mimeType |  | 用来覆盖XHR中的MIME类型。 |
+
+从上表可以看到如果直接使用ajax()函数，还是比较复杂的，因此JQuery就在此基础上进行了二次的封装，其中的很多参数在封装时已经填入了默认值，而只暴露一些常用的接口，接下来来看下进行二次封装后的三个函数load()、get()和post()。
+
+**2、load()：** 该函数的作用是从服务器载入数据，并且把返回的结果放入到通过选择器选择的节点中，该函数的具体形式如下：
+
+```javascript
+$("选择器").load( "服务器请求地址" [, 请求时传入的数据对象 ] [, 请求完成时的回调函数 ] )
+```
+
+该函数有两个可选参数，分别为以键值对保存的请求时传入的数据对象，另一个这是当请求完成时的回调函数，该函数的表现形式为complete(responseText, textStatus, XMLHttpRequest)，其中responseText为服务器返回的结果，textStatus为通信状态，而XMLHttpRequest则是Ajax的通信对象。这里需要注意的是，当load()函数没有传入数据对象时采用的GET明文通信，而当load()函数有传入数据对象时，则采用POST通信方式。
+
+**3、get()：** 该死表示向服务器发出一个HTTP GET请求，并从服务器上获取数据，该函数的具体形式如下：
+
+```javascript
+jQuery.get( "服务器请求地址" [, 请求时传入的数据对象 ] [, 请求成功时的回调函数 ] [, 预期的数据类型 ] )
+```
+
+该函数有三个可选参数，第一个可选参数是以键值对保存的请求时传入的数据对象，第二个可选参数是当请求成功时的回调函数，该函数的表现形式为function( PlainObject data, String textStatus, jqXHR jqXHR )，其中data为服务器返回的数据对象，textStatus为通信状态，而jqXHR则是JQuery封装的Ajax通信对象，第三个可选参数则是这次请求希望从服务器返回的数据类型，可以是xml、json、script、text、html中的一个。上面说了，所有这些封装后的函数，都可以用ajax()函数来表达，那么get()函数实际上就下下面ajax()函数的封装：
+
+```javascript
+$.ajax({
+    url: "服务器请求地址",
+    data: 请求时传入的数据对象,
+    success: 请求成功时的回调函数,
+    dataType: 预期的数据类型
+});
+```
+
+细心的读者可能会发现，在上面这些参数和回调函数中没有出现请求失败函数，这是因为在JQuery中所有的Ajax函数都会返回一个jqXHR对象，而失败的回调函数就在此对象中完成，因此完整的GET操作代码应该采用如下这种方式：
+
+```javascript
+$.get(
+    url, 
+    data, 
+    function(data, textStatus, jqXHR) {
+        // 请求成功的处理函数
+    }, 
+    dataType)
+    .done(function() { 
+        // 请求完成的处理函数
+    })
+    .fail(function() { 
+        // 请求失败的处理函数
+    })
+    .always(function() { 
+        // 不论成功、失败都会回调的处理函数
+    });
+```
+
+**4、post()：** POST函数的请求和GET函数的请求非常的类似，只不过在函数名方面有所区别，这里就不再累述。虽然使用方法类似，都是采用HTTP进行通信，但实际上这这两个通信方式却有很多不一样的地方，首先采用GET方式，所有数据信息会放在URL地址栏中，并且采用明文方式进行传递，而采用POST方式，则是把数据信息放在HTTP的Content里面进行传递，不会在地址栏中显示，提高了数据的安全性，其次采用GET方式时，因为是放在地址栏中，而URL的大小是有限制的，通常不能大于2KB，而采用POST则不受限制，因此POST经常传递一些图片、视频等多媒体文件，最后一个就是在GET方式的话，数据会被缓存起来，可以从浏览器的历史记录中获得，所以通常情况下在传递需要数据隐秘或大数据文件时采用POST方式，而如果是小数据量，也没有隐秘可言时可以采用GET方式。同样post()方式也是ajax()的再封装，因此也可以使用ajax()函数来表达，具体如下：
+
+```javascript
+$.ajax({
+    type: "POST",
+    url: "服务器请求地址",
+    data: 请求时传入的数据对象,
+    success: 请求成功时的回调函数,
+    dataType: 预期的数据类型
+});
+```
+
+**5、getScript()和getJSON()：** 最后来说两个最上层的封装函数，这两个函数都是采用GET方式进行提交，区别在于getScript()用于载入JavaScript文件，因此不需要传递数据对象，而getJSON()则是用于从服务器上获取以JSON形式编码的数据，因此在发送HTTP请求时，可能需要传递数据对象，两个函数的原型和采用ajax()函数的表达形式如下：
+
+```javascript
+getScript( "服务器请求地址" [, 请求成功时的回调函数 ] )
+$.ajax({
+  url: "服务器请求地址",
+  dataType: "script",
+  success: 请求成功时的回调函数
+});
+
+getJSON( "服务器请求地址" [, 请求时传入的数据对象 ] [, 请求成功时的回调函数 ] )
+$.ajax({
+  dataType: "json",
+  url: "服务器请求地址",
+  data: 请求时传入的数据对象,
+  success: 请求成功时的回调函数
+});
+```
 
 ## 5.6 小结
+
+通过本章的学习，了解了Web网页的基本组成部分，并且深入了解部分非常重要的概念，首先深入分析了HTML5中语义标签的作用和使用方法，帮助开发人员树立正确的HTML编写思路，其次详细分析深入分析了面向对象的CSS构建，通过这部分的构建让开人员可以知道多用组合等优秀的设计理念，然后使用大量篇幅讲解了面向对象JavaScript编程方法，特别是如何在JavaScript中实现面向对象三大基本要素的方法，以及JavaScript中原对象的使用，最后讲了一个JavaScript高级封装库JQuery，通过JQuery来实现DOM的操作、事件的响应，以及HTTP通信，通过这些知识的学习读者基本可以有一个基于现代编程思想的整体Web前段开发理念，而不是采用头疼医头脚疼医脚的局部编程方法。但是本章的内容实际上还有很多可以深入的方法，例如JQuery的动画使用，JavaScript的设计模式等，这些对于今后的编程都是莫大的好处。
