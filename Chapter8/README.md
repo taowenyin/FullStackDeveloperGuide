@@ -53,7 +53,7 @@
 
 ## 8.2 ThinkPHP框架的概述与项目部署
 
-ThinkPHP自2006年诞生以来经过了10年的技术沉淀，目前已经国内开发PHP相关项目最主要的框架之一。ThinkPHP的设计理念源自Struts，并在其基础上做了大量的改进，同时还引入了许多国外优秀的框架思想和模式。目前ThinkPHP主要使用的版本有两个，分别是3.x和5.x，其中3.x是ThinkPHP获得成功的主要版本，并且得到了大量项目的使用和验证其可靠性，但是目前3.x已经完成了历史使命。在2017年的2月ThinkPHP发布了中5.x版本，该版本是在3.x的基础上进行全面的改写，具有更加规范、更加严谨、扩展更加灵活、全面支持Restful接口等特性，因此5.x版本和3.x版本并不兼容，建议在新项目上使用5.x进行开发，本章内容主要以最新的5.x为基础进行相关内容的讲解。
+ThinkPHP自2006年诞生以来经过了10多年的技术沉淀，目前已经国内开发PHP相关项目最主要的框架之一。ThinkPHP的设计理念源自Struts，并在其基础上做了大量的改进，同时还引入了许多国外优秀的框架思想和模式。目前ThinkPHP主要使用的版本有两个，分别是3.x和5.x，其中3.x是ThinkPHP获得成功的主要版本，并且得到了大量项目的使用和验证其可靠性，但是目前3.x已经完成了历史使命。在2017年的2月ThinkPHP发布了中5.x版本，该版本是在3.x的基础上进行全面的改写，具有更加规范、更加严谨、扩展更加灵活、全面支持Restful接口等特性，因此5.x版本和3.x版本并不兼容，建议在新项目上使用5.x进行开发，本节内容主要以最新的5.x为基础进行相关内容的讲解。
 
 ### 8.2.1 ThinkPHP的安装与目录结构
 
@@ -324,11 +324,215 @@ config([
 
 ## 8.3 HTTP请求与ThinkPHP控制器的应用
 
+在ThhinkPHP的系统配置完成之后，接下来就要创建各类系统对外的接口来实现系统的交互和数据传递。在本章的第二节讲到ThinkPHP基于MVC架构进行编写，其中和外部进行交互的接口就是Controller（控制器），所以可以认为控制器的定义就是定义系统交互和数据通信的入口。因此，本节将讲解如何创建控制器和目前应用最为广泛，也是最为推荐的RESTful形式接口，以及如何通过接口进行数据的传递。
+
 ### 8.3.1 控制器的创建与重定向
 
-### 8.3.2 RESTful的概念与Rest控制器的使用
+正如前面所说，TP是基于MVC框架进行构建，而该框架的实现又是基于面向对象的相关技术，因此控制器从语法上来说其实质就是一个控制器的类，而不是一个函数。TP的控制器通常位于“application\模块名\controller“目录下，并且控制器的名字要和控制器的文件名相同。TP中控制器的类型分为两种，一种是继承于父类Controller的控制器，用于提供页面渲染和访问接口，而另一种则是不继承于父类Controller的控制器，此类控制器只用于提供访问接口。实质上这两种控制器之间可以项目转换，并且如果全部用功能更为全面，且继承于父类Controller的控制器也不会影响程序的运行，但如果能够进行控制器类型的区分，则可使得程序更加轻量，并且程序运行更加高效。此外，还需要特别说明的是每个控制器都需要有一个命名空间（namespace），用于区分控制器模块和其他模块，示例代码如下：
 
-### 8.3.3 HTTP的请求获取与参数绑定
+*第一种：只提供访问接口的控制器*
+
+```php
+namespace application\index\controller; // 命名空间
+
+class Index 
+{
+    public function index()
+    {
+        return 'index';
+    }
+}
+```
+
+*第二种：具有页面渲染和访问接口的控制器*
+
+```php
+namespace application\index\controller; // 命名空间
+
+use think\Controller; // 导入控制器命名空间
+
+class Index extends Controller // 继承于父类Controller
+{
+    public function index()
+    {
+        return $this->fetch('index'); // 解析并渲染index.html文件
+    }
+}
+```
+
+而控制器类的文件则在下面的位置：
+
+```bash
+TP5框架根目录/application/index/controller/Index.php
+```
+
+有了控制器，接下来就是定义其外部可访问的接口，访问接口的定义非常简单，就是在控制器类中添加相应的接口函数，如上面例子中第一种的index()函数。有了接口函数后就可以通过符合格式要求的URL进行访问，并在浏览器中看到打印了“Hello ThinkPHP5”，具体URL地址如下。
+
+```bash
+http://localhost/TP5/public/index.php/index/index/index
+```
+
+如果此时读者运行第二种控制器就会出现如图8-6所示的结果，但是从结果中可以得到的信息非常少，所以不利于程序调试，此时可以打开application目录下的config.php文件，并且把app\_debug和app\_trace的值改为true，再次运行上面的URL就可以看到详细的错误信息，如图8-7所示。从图中可以看到是因为找不到index.html导致的错误，这是因为控制器继承了父类Controller，使得该控制器可以通过fetch()函数进行HTML页面的渲染，但是因为此时的HTML文件不存在，使得渲染错误。
+
+![controll-view](Screenshot/controll-view.png)
+
+图8-6 ThinkPHP的场景配置项
+
+![view-error](Screenshot/view-error.png)
+
+图8-7 渲染HTML的错误
+
+TP中的HTML渲染文件保存在模块的view目录下，因此首先需要在Index模块目录下创建一个view目录，又因为调用了Index控制器，所以要在view目录下创建一个与Index控制器对应的index目录，最后因为调用的是Index控制器中的index函数，所以要在index目录下创建一个index.html文件来作为index函数的默认HTML模板。默认情况下，模板的文件名和控制器函数的名称相同，不过也可以通过向fetch('模板名称')函数传递模板名称的方式来修改和指定模板。
+
+当模板渲染时TP会在runtime目录下创建相应的缓存文件以提高TP的效率和显示速度，但是如果读者使用的是Linux系统下的Web服务器，那么当进行模板渲染时就会出现如图8-8所示的错误。从图中可以知道，程序运行的错误是因为Web服务器没有权限去修改runtime目录下的文件和文件夹，因此要解决这个问题只需要让Web服务器能够具有runtime文件夹的读写权限，而其中www-data就是Apache服务器的用户名，如果使用的是Nginx服务器，那么就需要把用户改为www，具体指令如下：
+
+```bash
+sudo chown -R www-data(www) runtime/
+```
+
+![runtime-error](Screenshot/runtime-error.png)
+
+图8-8 runtime文件读写权限错误
+
+当一个个HTML页面能够通过不同的控制器进行显示，此时就存在一个页面跳转的问题。在TP中，页面的跳转有两种，一种是操作成功或失败的页面跳转，另一种则是无关操作成功或失败的页面跳转，也叫页面的重定向。要实现这一功能首先就是要让控制器继承于父类Controller，然后根据不同的情况调用$this->success()、$this->error()或$this->redirect()，下面通过一个例子进行讲解，具体例子如下：
+
+```php
+namespace app\index\controller;
+
+use think\Controller;
+
+class Index extends Controller
+{
+    public function index()
+    {
+        $result = true;
+
+        if ($result) {
+            // 跳转到操作成功的页面
+            $this->success('操作成功', 'Index/successHtml');
+        } else {
+            // 跳转到操作失败的页面
+            $this->error('操作失败', 'Index/errorHtml');
+        }
+    }
+
+    public function redirectUrl()
+    {
+        // 跳转到指定页面
+        $this->redirect('Index/redirectHtml');
+    }
+
+    public function successHtml()
+    {
+        return $this->fetch();
+    }
+
+    public function errorHtml()
+    {
+        return $this->fetch();
+    }
+
+    public function redirectHtml()
+    {
+        return $this->fetch();
+    }
+}
+```
+
+在上面的例子中可以看到，通过在浏览器中输入“http://localhost/TP5/public/index.php/index/index/index”就可以执行index()函数，该函数通过变量$result来判断是执行success()还是error()函数，该函数完整的参数列表一共有5个，分别是跳转提示的信息、跳转的地址、返回的数据、跳转等待时间，以及Header信息，具体如下：
+
+```php
+/**
+* 操作成功/错误跳转的快捷方法
+* @access protected
+* @param mixed     $msg 提示信息
+* @param string    $url 跳转的URL地址
+* @param mixed     $data 返回的数据
+* @param integer   $wait 跳转等待时间
+* @param array     $header 发送的Header信息
+* @return void
+*/
+protected function success/error($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
+```
+
+其中最常用的是开始的三个参数，第一个是页面跳转时显示在过度页面上的信息，第二个是页面跳转的目标地址，第三个是传递给目标页面的URL数据。其中目标地址不仅可以是HTTP地址，而且在大部分情况下传递的是"控制器/控制器方法"这样的地址，如上例所示的“Index/successHtml”就表示跳转到Index控制器中的successHtml方法，如果此时在“view/index”目录下创建了successhtml.html，那么就会在页面中显示该页面的内容。此外还有一个redirect()函数也可以实现页面的跳转或者叫做页面的重定向，该函数完整的参数列表一共有4个，分别是跳转的地址、传递的参数、HTTP状态码，以及隐式传递的参数，与success()和error()函数类似，redirect()函数最常用的参数也是最开始的两个参数，第一个参数传递的是要进行页面跳转的地址，而第二个参数是传递给目标地址的URL数据数组，具体如下：
+
+```php
+/**
+* URL重定向
+* @access protected
+* @param string         $url 跳转的URL表达式
+* @param array|integer  $params 其它URL参数
+* @param integer        $code HTTP状态码
+* @param array          $with 隐式传参
+* @return void
+*/
+protected function redirect($url, $params = [], $code = 302, $with = [])
+```
+
+### 8.3.2 HTTP的请求获取与参数绑定
+
+在上节中多次提到了向目标地址传递参数，这个动作在TP的开发中非常常见，例如传递用户名、密码或者购买商品的参数等，而要获取这些数据就需要通过代码Request::instance()来创建Request对象。获取Request对象之后就可以得到各类传入的参数。但是，在获取各类参数之前，首先要判断的就是请求的类型，而在TP5之前TP采用系统常量的方式来完成类型的判断，如IS\_GET、IS\_POST等，而从TP5开始则把这些类型的判断全部统一在Request对象中，通过isXXX()函数来判断这些请求的类型，具体代码如下：
+
+```php
+// 是否为 GET 请求
+if (Request::instance()->isGet()) echo "当前为 GET 请求";
+// 是否为 POST 请求
+if (Request::instance()->isPost()) echo "当前为 POST 请求";
+// 是否为 PUT 请求
+if (Request::instance()->isPut()) echo "当前为 PUT 请求";
+// 是否为 DELETE 请求
+if (Request::instance()->isDelete()) echo "当前为 DELETE 请求";
+// 是否为 Ajax 请求
+if (Request::instance()->isAjax()) echo "当前为 Ajax 请求";
+// 是否为 Pjax 请求
+if (Request::instance()->isPjax()) echo "当前为 Pjax 请求";
+// 是否为手机访问
+if (Request::instance()->isMobile()) echo "当前为手机访问";
+// 是否为 HEAD 请求
+if (Request::instance()->isHead()) echo "当前为 HEAD 请求";
+// 是否为 Patch 请求
+if (Request::instance()->isPatch()) echo "当前为 PATCH 请求";
+// 是否为 OPTIONS 请求
+if (Request::instance()->isOptions()) echo "当前为 OPTIONS 请求";
+// 是否为 cli
+if (Request::instance()->isCli()) echo "当前为 cli";
+// 是否为 cgi
+if (Request::instance()->isCgi()) echo "当前为 cgi";
+```
+
+还是以上节中的例子为例，修改页面重定向的代码如下：
+
+```php
+namespace app\index\controller;
+
+use think\Controller;
+
+class Index extends Controller
+{
+    ......
+
+    public function redirectUrl()
+    {
+        // 跳转到指定页面
+        $this->redirect('Index/redirectHtml', ['cate_id' => 2]);
+    }
+
+    public function redirectHtml()
+    {
+        if (Request::instance()->isGet()) {
+            return "输入的参数类型为GET, cate_id = " . Request::instance()->route('cate_id');
+        }
+        if (Request::instance()->isPost()) {
+            return "输入的参数类型为POST, cate_id = " . Request::instance()->post('cate_id');
+        }
+    }
+}
+```
+
+
+
+### 8.3.3 RESTful的概念与Rest控制器的使用
 
 ## 8.4 ORM模型的创建与数据库的CURD操作
 
