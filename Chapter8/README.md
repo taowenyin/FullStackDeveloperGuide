@@ -394,7 +394,7 @@ sudo chown -R www-data(www) runtime/
 
 图8-8 runtime文件读写权限错误
 
-当一个个HTML页面能够通过不同的控制器进行显示，此时就存在一个页面跳转的问题。在TP中，页面的跳转有两种，一种是操作成功或失败的页面跳转，另一种则是无关操作成功或失败的页面跳转，也叫页面的重定向。要实现这一功能首先就是要让控制器继承于父类Controller，然后根据不同的情况调用$this->success()、$this->error()或$this->redirect()，下面通过一个例子进行讲解，具体例子如下：
+当一个个HTML页面能够通过不同的控制器进行显示，此时就存在一个页面跳转的问题。在TP中，页面的跳转有两种，一种是操作成功或失败的页面跳转，另一种则是无关操作成功或失败的页面跳转，也叫页面的重定向。要实现这一功能首先就是要让控制器继承于父类Controller，然后根据不同的情况调用$this->success()、$this->error()或$this->redirect()，下面通过一个例子进行讲解，具体如例8-1所示：
 
 ```php
 namespace app\index\controller;
@@ -438,6 +438,8 @@ class Index extends Controller
     }
 }
 ```
+
+例8-1 页面跳转
 
 在上面的例子中可以看到，通过在浏览器中输入“http://localhost/TP5/public/index.php/index/index/index”就可以执行index()函数，该函数通过变量$result来判断是执行success()还是error()函数，该函数完整的参数列表一共有5个，分别是跳转提示的信息、跳转的地址、返回的数据、跳转等待时间，以及Header信息，具体如下：
 
@@ -501,7 +503,7 @@ if (Request::instance()->isCli()) echo "当前为 cli";
 if (Request::instance()->isCgi()) echo "当前为 cgi";
 ```
 
-还是以上节中的例子为例，修改页面重定向的代码如下：
+还是以上节中的例子为例，修改页面重定向的代码如例8-2所示：
 
 ```php
 namespace app\index\controller;
@@ -523,14 +525,49 @@ class Index extends Controller
         if (Request::instance()->isGet()) {
             return "输入的参数类型为GET, cate_id = " . Request::instance()->route('cate_id');
         }
-        if (Request::instance()->isPost()) {
-            return "输入的参数类型为POST, cate_id = " . Request::instance()->post('cate_id');
-        }
     }
 }
 ```
 
+例8-2 带参数页面跳转
 
+在上面的代码中，redirectUrl()函数通过重定向函数redirect()对目标函数redirectHtml()进行跳转，同时向重定向函数传入一个需要向目标函数传递的参数数组。此时，在浏览器的地址栏中输入“http://localhost/TP5/public/index.php/index/index/redirecturl”，TP就会能实现页面的跳转。并且细心的读者就会发现地址栏中一些特别的东西，即地址变为了“http://localhost/TP5/public/index.php/index/index/redirecthtml/cate\_id/2.html”，其中cate\_id之前的地址就是目标函数的地址，这个很好理解，而是之后的“cate\_id/2.html”则有些不同，但是仔细观察重定向函数redirect()就会发现“cate\_id/2.html”实际上就是该函数的第二个参数，只是TP把这个参数以PATHINFO形式进行传递，所谓PATHINFO就是把参数名和参数值以“/”的方式进行分离，并跟在地址后面。当采用PATHINFO传递数据时，数据传递的方式采用的是GET方式，所以在目标函数redirectHtml()中可以通过isGet()函数来判断数据传递的类型，又因为采用的是PATHINFO，所以需要通过请求对象的route()函数来获取数据。因为在Web开发数据传入的方式是多种多样的，因此TP提供了多种读取传入数据的函数，从这些函数功能上来说可以分为两类，即判断参数是否存在和参数获取方式，具体他如下：
+
+1、判断参数时候存在
+
+在TP中判断参数是否存在的函数是Request::instance()->has()，该函数共有三个参数，分别是要判断的目标变量名、传入参数的类型，以及是否验证空数据，其中第一个参数目标变量名是必填项，其他两个参数都不是必填参数，当向第二参数传入参数的类型传递字符串“GET”时，表示该判断函数是在GET数据上进行判断，而传递“POST”时表示在POST数据上进行判断，又或是在其他传入方式上进行判断，当向最后一个参数是否验证空数据传递true时，表示当传入的数据为空时，则函数返回false，否则就返回true，当传递false时，则表示不进行控制判断，具体函数原型和使用如下：
+
+```php
+/**
+* 是否存在某个请求参数
+* @access public
+* @param string    $name 判断的目标变量名
+* @param string    $type 传入参数的类型
+* @param bool      $checkEmpty 是否验证空数据
+* @return mixed
+*/
+public function has($name, $type = 'param', $checkEmpty = false)
+
+// has()函数的使用
+Request::instance()->has('id','get');
+Request::instance()->has('name','post');
+```
+
+2、参数获取方式
+
+**（1）Request::instance()->param()：**该函数是TP提供的一个用于自动识别GET、POST或者PUT请求的一种变量获取方式，同时该函数也是TP所推荐的获取请求参数的方法，该函数有三种使用方法，分别是param(“变量名”)、param()、param(true)，其中第一种表示通过变量名获取变量值，第二种表示获取所有的变量和变量值，并以数组的形式返回，第三种则是返回所有数据，包含上传的文件。
+
+**（2）Request::instance()->get()：**该函数是TP提供的一个用于识别GET请求的一种变量获取方式，该函数有两种使用方法，分别是get(“变量名”)、get()，其中第一种表示通过变量名获取变量值，第二种表示获取所有GET中的变量和变量值，并以数组的形式返回。
+
+**（3）Request::instance()->post()：**该函数是TP提供的一个用于识别POST请求的一种变量获取方式，该函数有两种使用方法，分别是post(“变量名”)、post()，其中第一种表示通过变量名获取变量值，第二种表示获取所有POST中的变量和变量值，并以数组的形式返回。
+
+**（4）Request::instance()->put()：**该函数是TP提供的一个用于识别PUT请求的一种变量获取方式，该函数有两种使用方法，分别是put(“变量名”)、put()，其中第一种表示通过变量名获取变量值，第二种表示获取所有PUT中的变量和变量值，并以数组的形式返回。
+
+**（5）Request::instance()->request()：**该函数是TP提供的一个用于识别REQUEST请求的一种变量获取方式，该函数有两种使用方法，分别是request(“变量名”)、request()，其中第一种表示通过变量名获取变量值，第二种表示获取所有REQUEST中的变量和变量值，并以数组的形式返回。
+
+**（5）Request::instance()->session()：**该函数是TP提供的一个用于识别SESSION请求的一种变量获取方式，该函数有两种使用方法，分别是session(“变量名”)、session()，其中第一种表示通过变量名获取变量值，第二种表示获取所有SESSION中的变量和变量值，并以数组的形式返回。
+
+**（6）Request::instance()->cookie()：**该函数是TP提供的一个用于识别Cookie请求的一种变量获取方式，该函数有两种使用方法，分别是cookie(“变量名”)、cookie()，其中第一种表示通过变量名获取变量值，第二种表示获取所有Cookie中的变量和变量值，并以数组的形式返回。
 
 ### 8.3.3 RESTful的概念与Rest控制器的使用
 
