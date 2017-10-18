@@ -597,7 +597,7 @@ Request::instance()->has('name','post');
 
 在上一节讲了如何通过创建控制器和控制器函数来为前端提供各类的接口，然后由于应用的种类各种各样，并且开发者的水平参差不齐，使得在很长时间里面Web开发的接口（API）都相当的混乱，系统和系统之间对接困难，但是到了2000年这样的现象因为一篇博士论文出现开始发生的改变。2000年，HTTP协议的主要设计者、Apache服务器软件的作者之一、Apache基金会第一任主席Roy Thomas Fielding在加利福尼亚大学欧文分校攻读博士学位时发表了一篇名为《Architectural Styles and the Design of Network-based Software Architectures》（架构风格与基于网络应用软件的架构设计）的博士论文，在该文中提出了一个对互联网发展具有重要意义的概念——Representational State Transfer，即REST概念。
 
-REST的中文翻译叫做“资源的表现层状态转化”
+REST的中文翻译叫做“资源的表现层状态转化”，其中所谓的“资源”实际上就是指以URL定位的资源，而表现层则指的是以JSON、XML或者其他数据类型的数据
 
 ## 8.4 ORM模型的创建与数据库的CURD操作
 
