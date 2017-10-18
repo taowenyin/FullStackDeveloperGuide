@@ -531,7 +531,31 @@ class Index extends Controller
 
 例8-2 带参数页面跳转
 
-在上面的代码中，redirectUrl()函数通过重定向函数redirect()对目标函数redirectHtml()进行跳转，同时向重定向函数传入一个需要向目标函数传递的参数数组。此时，在浏览器的地址栏中输入“http://localhost/TP5/public/index.php/index/index/redirecturl”，TP就会能实现页面的跳转。并且细心的读者就会发现地址栏中一些特别的东西，即地址变为了“http://localhost/TP5/public/index.php/index/index/redirecthtml/cate\_id/2.html”，其中cate\_id之前的地址就是目标函数的地址，这个很好理解，而是之后的“cate\_id/2.html”则有些不同，但是仔细观察重定向函数redirect()就会发现“cate\_id/2.html”实际上就是该函数的第二个参数，只是TP把这个参数以PATHINFO形式进行传递，所谓PATHINFO就是把参数名和参数值以“/”的方式进行分离，并跟在地址后面。当采用PATHINFO传递数据时，数据传递的方式采用的是GET方式，所以在目标函数redirectHtml()中可以通过isGet()函数来判断数据传递的类型，又因为采用的是PATHINFO，所以需要通过请求对象的route()函数来获取数据。因为在Web开发数据传入的方式是多种多样的，因此TP提供了多种读取传入数据的函数，从这些函数功能上来说可以分为两类，即判断参数是否存在和参数获取方式，具体他如下：
+在上面的代码中，redirectUrl()函数通过重定向函数redirect()对目标函数redirectHtml()进行跳转，同时向重定向函数传入一个需要向目标函数传递的参数数组。此时，在浏览器的地址栏中输入“http://localhost/TP5/public/index.php/index/index/redirecturl”，TP就会能实现页面的跳转。细心的读者就会发现地址栏中一些特别的东西，即地址变为了“http://localhost/TP5/public/index.php/index/index/redirecthtml/cate\_id/2.html”，其中cate\_id之前的地址就是目标函数的地址，这个很好理解，而是之后的“cate\_id/2.html”则有些不同，但是仔细观察重定向函数redirect()就会发现“cate\_id/2.html”实际上就是该函数的第二个参数，只是TP把这个参数以PATHINFO形式进行传递，所谓PATHINFO就是把参数名和参数值以“/”作为分隔符组成的一串数据，并将其跟在地址后面。当采用PATHINFO传递数据时，数据以GET方式进行传递，所以在目标函数redirectHtml()中可以通过isGet()函数来判断数据传递的类型，又因为采用的是PATHINFO，所以需要通过请求对象Request的route()函数来获取数据。
+
+从上面的表述可以看到，要读取以PATHINFO形式存在的数据，其流程是比较复杂的，而在TP中为了简化这一过程提供了一种叫做“控制器函数的参数绑定”的方式。所谓“控制器函数的参数绑定”就是在编写控制器函数时为该函数提供一个或多个形参，当通过PATHINFO传递数据，那么TP就会自动把PATHINFO中的数据和传入函数的形参进行匹配，如果传入参数的参数名和形参名匹配，那么就可以把传入数据的值传递给形参，从而实现数据的传递。接下来修改例8-2中的redirectHtml()函数，使其实现参数绑定的功能，具体如下：
+
+```php
+public function redirectHtml($cate_id)
+{
+    return "输入的参数类型为GET, cate_id = " . $cate_id;
+}
+```
+
+在上面的函数中，为其添加一个$cate\_id的形参，当调用重定向函数redirect()时，TP会自动把$cate\_id作为参数传递到redirectHtml()函数，并且TP会判断传入的参数名是否为“cate\_id”，如果是直接把数据传递给$cate\_id。这样的做法不仅可以提高数据解析的效率，还能增加代码的可读性。此外，通过参数绑定还可以检查传递参数时的错误问题，因为当参数传递到redirectHtml()函数时，TP如果发现传入的参数无法与绑定的形参进行匹配，那么就会出现如图8-9的错误。为了避免图8-9的问题，TP建议在开发控制器函数时为需要进行参数绑定的函数添加一个默认值，当向控制器函数传入的数据异常或者无法和控制器函数的形参匹配时，那么TP就会使用默认参数来进行赋值，从而避免错误的出现，具体代码如下：
+
+```php
+public function redirectHtml($cate_id = 0)
+{
+    return "输入的参数类型为GET, cate_id = " . $cate_id;
+}
+```
+
+![param-binding-error](Screenshot/param-binding-error.png)
+
+图8-9 参数绑定的错误
+
+从上面的内容可以看到，在Web开发中数据传入的方式是多种多样的，有GET、POST、PATHINFO等，因此TP提供了多种数据读取的函数，从这些函数功能上来说可以分为两类，即判断参数是否存在和参数获取方式，具体他如下：
 
 1、判断参数时候存在
 
