@@ -132,7 +132,7 @@ composer create-project topthink/think tp5 --prefer-dist
 
 在这些文件和文件夹中，有一个文件夹需要特别说明，即application，该文件夹是项目构建的核心文件夹，是应用程序主要编写和存放的地方，进入到该文件夹下有6个文件和1个文件夹，分别为index、command.php、common.php、config.php、database.php、route.php、tags.php，这7个文件和文件夹的分别如表8-2所示。
 
-表8-1 application目录下的文件与文件夹说明
+表8-2 application目录下的文件与文件夹说明
 
 | 文件或文件夹名称 | 说明 |
 | :-: | :- |
@@ -614,12 +614,186 @@ http://服务器地址/资源链接前缀/studentinfo
 > * PUT：更新一个或多个学生信息
 > * DELETE：删除一个或多个学生信息
 
-在TP5中最大的一个特点就是提供了符合RESTful接口的API创建，并且通过URL路由的方式实现了不同HTTP操作的函数调用。在TP5中要创建RESTful接口的控制器需要使用资源控制器，并且TP5提供了一条指令来自动创建资源控制器，进入项目的根目录，并在控制台或者终端中执行如下指令：
+在TP5的众多特点中，能够创建和使用符合RESTful接口标准的控制器也是其一大特点，然后TP通过URL路由的方式实现了不同HTTP操作与不同函数之间的对应关系。在TP5中通过创建要资源控制器的方式来实现RESTful接口，并且TP5提供了一条便捷的指令来帮助开发者进行自动创建，只需要开发人员把控制台或者终端切换到项目的根目录，然后执行如下指令：
 
 ```bash
 php think make:controller index/Blog
 ```
 
+在上面的指令中“php think make:controller”表示创建一个控制器，而后面的”index/Blog“表示在index模块下创建一个Blog控制器。指令执行完成后就会在index模块的controller文件夹下发现多出一个Blog.php，该文件就创建好的资源控制器，然后打开application目录下的路由配置文件route.php，使用路由类Route中的资源来绑定资源控制器和路由之间的关系，添加如下的代码：
+
+```php
+use think\Route;
+
+Route::resource('blog','index/blog');
+```
+
+因为原本路由配置文件route.php中已经包含了一个简单的路由范例，但是该范例是通过return的方式进行设置，而上面所说的资源路由设置则是通过路由类Route来进行设置，因此这里需要注意的是要把设置代码添加在return上面，而不能在return下方。当创建完资源控制器，并添加资源路由之后就可以通过URL进行访问，打开Blog.php就会看到如下代码：
+
+```php
+namespace app\index\controller;
+
+use think\Controller;
+use think\Request;
+
+class Blog extends Controller
+{
+    /**
+     * 显示资源列表
+     *
+     * @return \think\Response
+     */
+    public function index() { }
+
+    /**
+     * 显示创建资源表单页.
+     *
+     * @return \think\Response
+     */
+    public function create() { }
+
+    /**
+     * 保存新建的资源
+     *
+     * @param  \think\Request  $request
+     * @return \think\Response
+     */
+    public function save(Request $request) { }
+
+    /**
+     * 显示指定的资源
+     *
+     * @param  int  $id
+     * @return \think\Response
+     */
+    public function read($id) { }
+
+    /**
+     * 显示编辑资源表单页.
+     *
+     * @param  int  $id
+     * @return \think\Response
+     */
+    public function edit($id) { }
+
+    /**
+     * 保存更新的资源
+     *
+     * @param  \think\Request  $request
+     * @param  int  $id
+     * @return \think\Response
+     */
+    public function update(Request $request, $id) { }
+
+    /**
+     * 删除指定资源
+     *
+     * @param  int  $id
+     * @return \think\Response
+     */
+    public function delete($id) { }
+}
+```
+
+从上面的代码不难看出其对资源的操作，但是需要注意的是因为这里已经注册的资源路由，因此如果直接访问该控制就会出现如图8-10的错误。则是因为在注册资源路由时已经把”index/blog“注册为”blog“，所以在使用时不应出现如下的链接：
+
+```html
+http://localhost/TP5/public/index.php/index/blog/index
+```
+
+而是应该以下面这样的形式进行访问
+
+```html
+http://localhost/TP5/public/index.php/blog/index
+```
+
+又因为在资源路由注册时，系统已经把所有的函数进行了路由绑定，因此正确的访问资源方法应该如表8-3所示。
+
+表8-3 TP根目录下的文件与文件夹说明
+
+| 请求类型 | 访问链接 | 对应操作 | 说明 |
+| :-: | :- | :-: | :- |
+| GET | .../index.php/blog | index | 显示资源列表 |
+| GET | .../index.php/blog/create | create | 显示创建资源表单页 |
+| POST | .../index.php/blog | save | 保存新建的资源 |
+| GET | .../index.php/blog/id | read | 显示指定的资源 |
+| GET | .../index.php/blog/id/edit | edit | 显示编辑资源表单页 |
+| PUT | .../index.php/blog/id | update | 保存更新的资源 |
+| DELETE | .../index.php/blog/id | delete | 删除指定资源 |
+
+![resource-error](Screenshot/resource-error.png)
+
+图8-10 资源控制器的访问错误
+
+仔细观察Blog.php文件就会发现在该文件中多次出现了Request类，并且该类出现的位置都是要提交数据的函数，这是因为Request类存放的是当前请求的信息，包括在使用POST和PUT请求时所提交的数据，以及各类请求的信息，这个信息可以分为四类，分别是获取URL信息、获取模块/控制器/操作名称、获取请求参数、获取路由和调度信息，具体代码如下：
+
+1、获取URL信息
+
+```php
+$request = Request::instance();
+// 获取当前域名
+$request->domain();
+// 获取当前入口文件
+$request->baseFile();
+// 获取当前URL地址 不含域名
+$request->url();
+// 获取包含域名的完整URL地址
+$request->url(true);
+// 获取当前URL地址 不含QUERY_STRING
+$request->baseUrl();
+// 获取URL访问的ROOT地址
+$request->root();
+// 获取URL访问的ROOT地址
+$request->root(true);
+// 获取URL地址中的PATH_INFO信息
+$request->pathinfo();
+// 获取URL地址中的PATH_INFO信息 不含后缀
+$request->path();
+// 获取URL地址中的后缀信息
+$request->ext();
+```
+
+2、获取模块/控制器/操作名称
+
+```php
+$request = Request::instance();
+// 获得当前模块名称
+$request->module();
+// 获得当前控制器名称
+$request->controller();
+// 获得当前操作名称
+$request->action();
+```
+
+3、获取请求参数
+
+```php
+$request = Request::instance();
+// 获得请求方法
+$request->method();
+// 获得资源类型
+$request->type();
+// 获得访问ip地址
+$request->ip();
+// 获得是否AJax请求
+var_export($request->isAjax(), true);
+// 获得请求参数
+dump($request->param());
+// 获得请求参数：仅包含name
+dump($request->only(['name']));
+// 获得请求参数：排除name
+dump($request->except(['name']));
+```
+
+4、获取路由和调度信息
+
+```php
+$request = Request::instance();
+// 获得路由信息
+dump($request->route());
+// 获得调度信息
+dump($request->dispatch());
+```
 
 ## 8.4 ORM模型的创建与数据库的CURD操作
 
