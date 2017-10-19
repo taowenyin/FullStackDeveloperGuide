@@ -597,7 +597,29 @@ Request::instance()->has('name','post');
 
 在上一节讲了如何通过创建控制器和控制器函数来为前端提供各类的接口，然后由于应用的种类各种各样，并且开发者的水平参差不齐，使得在很长时间里面Web开发的接口（API）都相当的混乱，系统和系统之间对接困难，但是到了2000年这样的现象因为一篇博士论文出现开始发生的改变。2000年，HTTP协议的主要设计者、Apache服务器软件的作者之一、Apache基金会第一任主席Roy Thomas Fielding在加利福尼亚大学欧文分校攻读博士学位时发表了一篇名为《Architectural Styles and the Design of Network-based Software Architectures》（架构风格与基于网络应用软件的架构设计）的博士论文，在该文中提出了一个对互联网发展具有重要意义的概念——Representational State Transfer，即REST概念。
 
-REST的中文翻译叫做“资源的表现层状态转化”，其中所谓的“资源”实际上就是指以URL定位的资源，而表现层则指的是以JSON、XML或者其他数据类型的数据
+REST的中文翻译叫做“资源的表现层状态转化”，其中所谓的“资源”是指用于定位资源的URL地址，“表现层”是指以JSON、XML或者其他数据类型为形式的数据，而“状态转化”则是指以HTTP的POST、GET、PUT、DELETE操作来表达对资源的增、删、改、查操作。在Roy Thomas Fielding的认知中，Web API其本质是对Web中各类资源的增、删、改、查操作，如添加学生信息、查询学员信息、修改学生信息和删除学生信息等，但是由于过去各系统的开发者的认识各不相同，使得开发的Web API很难在各系统之间直接调用，而Roy Thomas Fielding发现了这个问题，并且把这些问题进行抽象和总结，提出在设计Web API中的两点建议，并且只要符合这两点建议的Web API就是RESTful，具体建议如下：
+
+1、以名词结尾。因为Web资源是一个很具体的实体，而定位资源的URL地址应表达的是资源内容，而不是对资源的操作，所以Roy Thomas Fielding建议在设计URL时应以资源的名字作为结尾，表示该URL将对某个资源进行操作，而是把动作直接加在URL中，即URL中不应出现动词。
+
+2、以HTTP方法来表达操作。既然URL不能表达对资源的操作，那么Roy Thomas Fielding就为HTTP的POST、GET、PUT、DELETE这四种操作赋予了资源操作的语义，如GET表示读取一个或多个数据资源，POST表示新建一个或多个资源，PUT表示更新一个或多个资源，DELETE表示删除一个或多个资源。
+
+从上面的两个点建议可以看到，Web API在设置时其URL表示所要操作的资源，并且在API中不说明要操作的动作，而是在API中通过鉴别不同的提交动作来判断是要读取资源还是删除资源等，例如要设计一个符合RESTful的学生信息操作接口，其Web API的URL应该如下：
+
+```html
+http://服务器地址/资源链接前缀/studentinfo
+```
+
+> * POST：新建一个学生信息
+> * GET：获取一个或多个学生信息
+> * PUT：更新一个或多个学生信息
+> * DELETE：删除一个或多个学生信息
+
+在TP5中最大的一个特点就是提供了符合RESTful接口的API创建，并且通过URL路由的方式实现了不同HTTP操作的函数调用。在TP5中要创建RESTful接口的控制器需要使用资源控制器，并且TP5提供了一条指令来自动创建资源控制器，进入项目的根目录，并在控制台或者终端中执行如下指令：
+
+```bash
+php think make:controller index/Blog
+```
+
 
 ## 8.4 ORM模型的创建与数据库的CURD操作
 
