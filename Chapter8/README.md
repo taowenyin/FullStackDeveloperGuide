@@ -813,12 +813,16 @@ http://server/product/5/123
 
 ### 8.4.1 路由的定义与批量注册
 
-TP中路由的添加通常是放在路由配置文件“application/route.php”文件中，并且可以采用Route类中的rule()方法进行注册和定义，其rule()函数的原型如下：
+TP中路由的添加通常放在路由配置文件“application/route.php”文件中，并且采用Route类中的rule()方法进行注册和定义，其rule()函数的原型如下：
 
 ```php
 // rule()函数的原型
-// Route::rule('路由表达式', '路由地址', '请求类型', '路由参数（数组）', '变量规则（数组）');
+Route::rule('路由表达式', '路由地址', '请求类型', '路由参数（数组）', '变量规则（数组）');
+```
 
+*使用方法如下：*
+
+```php
 use think\Route;
 // 注册路由到index模块的News控制器的read操作
 Route::rule('new/:id','index/News/read');
