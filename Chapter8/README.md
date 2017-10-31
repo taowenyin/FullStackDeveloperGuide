@@ -896,14 +896,72 @@ return [
 
 ```php
 return [
-    'new/:id'   => 'News/read',
-    'blog/:id'   => ['Blog/update',['method' => 'post|put']],
+    'new/:id' => 'News/read',
+    'blog/:id' => ['Blog/update',['method' => 'post|put']],
 ];
 ```
 
-### 8.4.2 路由的参数设置与分组
+### 8.4.2 路由的分组与URL生成
 
-### 8.4.3 路由的绑定与URL生成
+在上一节讲了TP中基本的路由使用方法，但在实际开发中很多路由都会指向同一个控制器，然后再分解到控制器中的不同函数或者通过HTTP方法调用不同的控制器，当TP进行路由时会遍历完整的路由规则，而对于相同控制器下的路由，TP提供了更为高效的路由系统，即分组路由，通过分组路由的设置可以把具有相同前缀（即控制器）的路由进行合并，从而避免了TP每次都去遍历完整的路由规则，具体代码如下：
+
+*原本在route.php中的路由规则：*
+
+```php
+return [
+    'blog/:id' => ['Blog/read', ['method' => 'get']],
+    'blog/:name' => ['Blog/read', ['method' => 'post']]
+]
+```
+
+*分组后的路由规则：*
+
+```php
+return [
+    '[blog]' => [
+        ':id'   => ['Blog/read', ['method' => 'get']],
+        ':name' => ['Blog/read', ['method' => 'post']]
+    ]
+]
+```
+
+除了在route.php中通过return方式进行路由数组的返回外，TP还能通过Route::group()函数进行路由的分组，具体代码如下：
+
+```php
+Route::group('blog',[
+    ':id'   => ['Blog/read', ['method' => 'get']],
+    ':name' => ['Blog/read', ['method' => 'post']],
+]);
+```
+
+在TP中由于存在各种的路由、控制器，因此造成URL地址的种类非常多，而TP提供了一种统一生成URL的方法，并且可以支持所有的路由方式，使得开发人员无需再为因为路由定义和变化造成URL地址的改变而烦恼。在TP中URL的生成是由URL类中的build()函数来完成，具体代码如下：
+
+```php
+Url::build('地址表达式', ['参数'], ['URL后缀'], ['域名'])
+```
+
+其中“地址表达式”是表示要生成URL的“模块=>控制器=>操作”，而“参数”则表示向该地址传递的参数，而“URL后缀”则表示URL的后缀名，如.html、.shtml等，最后一个“域名”则表示生成URL地址中时候要加入域名，具体代码如下：
+
+*添加路由：*
+
+```php
+Route::rule('blog/:id','index/blog/read');
+```
+
+*生成URL地址的函数：*
+
+```php
+// 生成index模块 blog控制器的read操作 URL访问地址
+Url::build('index/blog/read', ['id'=>5,'name'=>'thinkphp'], 'shtml');
+```
+
+*生成的URL地址：*
+
+```php
+/index.php/blog/5/name/thinkphp.shtml
+```
+
+在上面的代码中，当通过Url::build()函数生成URL地址，会检索相关的路由配置文件，并且在其基础上生成经过路由定义地址，并且在地址的最后添加后面html，当如果此时设置的URL后缀为“shtml”，那么生成的URL后缀就会变成“shtml”。
 
 ## 8.5 ORM模型的创建与数据库的CURD操作
 
