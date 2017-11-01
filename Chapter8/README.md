@@ -969,7 +969,29 @@ Url::build('index/blog/read', ['id'=>5,'name'=>'thinkphp'], 'shtml');
 
 ### 8.5.1 数据库的的参数配置
 
+在TP中初级的模型通常始于数据库，因此要让TP能够顺利的连接数据库，首先就要在TP中对需要连接的数据库进行配置。在TP中，数据库的配置参数文件放在“application”目录下的“database.php”中，打开该文件就可以就会发现其本质是一个很长的数组，其中定义了很多与数据库连接相关的信息，如果数据库类型、数据库账户、数据库编码方式等，下面就给出表来进行详细说明常用的数据库配置参数，如下8-5所示。
 
+表8-5 常用的数据库连接参数
+
+| 参数名 | 值 | 默认值 | 说明 |
+| :-: | :-: | :-: | :- |
+| type | mysql、pgsql、sqlite、sqlsrv | 无 | 支持的数据库类型，目前支持MySQL、SQLServer、PostgreSQL、SQLite，如果还需要支持的其他数据库，就需要自己编写驱动文件 |
+| hostname | 数据库服务器地址 | 127.0.0.1 | 数据库服务器的IP地址或域名地址 |
+| database | 数据库名称 | 无 | 要连接的数据库名称 |
+| username | 用户名 | 无 | 连接数据库的用户名 |
+| password | 密码 | 无 | 连接数据库的密码 |
+| hostport | 数据库服务器端口号 | 无 | 不同的数据库服务器，其端口号都不相同，例如MySQL服务器的默认端口是3306 |
+| dsn | 连接数据库的DSN | 无 | 数据库连接DSN信息，其信息格式为“数据库类型://数据库连接用户名:数据库连接密码@数据库服务器地址:数据库服务器端口号/连接的数据库名称#数据库采用的编码方式”，以本地的MySQL数据库为例，其DSN信息为“mysql://root:1234@127.0.0.1:3306/thinkphp#utf8” |
+| params | 数据库连接参数 | 空 | 数据库连接时的PDO参数，可以参考[PHP在线手册](http://php.net/manual/zh/pdo.constants.php)中的以PDO::ATTR_开头的常量，不同对于一般应用来说，改参数需要设置的情况较少 |
+| charset |  数据库编码方式 | utf8 | 数据库中的数据默认采用的编码方式 |
+| prefix | 数据库表前缀 | 无 | 当在一个数据库中有个多张数据表时，用于快速定这些数据表的前缀，例如think\_user、think\_role等，那么此时就可以在该参数中设置一个前缀为“think\_”。 |
+| debug | true、false | false | 数据库调试模式 |
+| fields_strict | true、false | true | 是否严格检查字段是否存在 |
+| resultset_type | array | array | 数据集返回类型，默认情况下数组 |
+| auto_timestamp | true、false | false | 自动写入时间戳字段 |
+| datetime_format | 符合PHP规范的时间格式 | Y-m-d H:i:s | 时间字段取出后的默认时间格式，具体可是可以参[PHP时间格式](http://php.net/manual/zh/function.date.php) |
+
+当配置完成之后就可以连接数据库，并进行数据的读取
 
 ### 8.5.2 ORM数据库模型的定义与初始化
 
