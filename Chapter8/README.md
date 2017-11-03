@@ -991,9 +991,87 @@ Url::build('index/blog/read', ['id'=>5,'name'=>'thinkphp'], 'shtml');
 | auto_timestamp | true、false | false | 自动写入时间戳字段 |
 | datetime_format | 符合PHP规范的时间格式 | Y-m-d H:i:s | 时间字段取出后的默认时间格式，具体可是可以参[PHP时间格式](http://php.net/manual/zh/function.date.php) |
 
-当配置完成之后就可以连接数据库，并进行数据的读取
+当配置完成之后就可以连接数据库，并进行数据的读取，在数据库服务器中创建数据库“think\_test”，然后在其中创建一张person\_info的数据表，并加入3条测试数据，具体SQL代码如下：
+
+```SQL
+--创建数据库think_test
+CREATE DATABASE  IF NOT EXISTS `think_test`;
+--选择数据库think_test
+USE `think_test`;
+
+--创建数据表person_info
+DROP TABLE IF EXISTS `person_info`;
+CREATE TABLE `person_info` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `sex` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+);
+
+--向数据表person_info中插入数据
+INSERT INTO `person_info` VALUES (1,'张三',1),(2,'李四',0),(3,'王五',1);
+```
+
+当数据完成后，就在可以在Index模块的index()函数中可以使用Db类中query()和execute()函数来读取数据库的操作。在下面的例子中将通过查询语句来实现数据表“person_info”的查询，并且为了得到更好的显示效果，可以在config.php文件中把“default\_return\_type”的值由“html”改成“json”，具体代码和结果如下：
+
+```php
+public function index()
+{
+    $data = Db::query('select * from person_info');
+    return $data;
+}
+```
+
+![database_query](Screenshot/database_query.png)
+
+图8-11 数据库查询结果
+
+在上面例子中讲到Db类中有两个常用的函数，分别是query()和execute()函数，这两个函数的区别在于query()通常用于执行“select”查询语句，因为该函数会返回一个查询结果的数据，而execute()函数则通常用于执行“insert”、“delete”、“update”语句，并且返回这些语句影响的行数，函数原型如下：
+
+```php
+/**
+* 执行查询 返回数据集
+* @access public
+* @param string      $sql    sql指令
+* @param array       $bind   参数绑定
+* @param boolean     $master 是否在主服务器读操作
+* @param bool|string $class  指定返回的数据集对象
+* @return mixed
+* @throws BindParamException
+* @throws PDOException
+*/
+public function query($sql, $bind = [], $master = false, $class = false)
+
+/**
+* 执行语句
+* @access public
+* @param string $sql  sql指令
+* @param array  $bind 参数绑定
+* @return int
+* @throws BindParamException
+* @throws PDOException
+*/
+public function execute($sql, $bind = [])
+```
+
+这两个函数的参数列表中最重要的就是前面两个参数，第一个参数顾名思义就是完整的SQL语句，而第二个参数表示的是SQL语句中通过“？”或者“:参数名”的方式进行占位后对应的参数数组，通过占位符的使用可以简化SQL语句的编写，免去了通过字符串拼接的方式来实现完整的SQL语句，具体例子如下：
+
+```php
+// “？”占位符
+Db::query('select * from think_user where id=?',[8]);
+Db::execute('insert into think_user (id, name) values (?, ?)',[8,'thinkphp']);
+
+// “:参数名”占位符
+Db::query('select * from think_user where id=:id',['id'=>8]);
+Db::execute('insert into think_user (id, name) values (:id, :name)',['id'=>8,'name'=>'thinkphp']);
+```
+
+占位符的使用有两类，在第一类“？”占位符中“？”的顺序就对应后面参数数组的顺序，也就是说第一个“？”对应后面参数数组中的第一个值，而第二个“？”则对应后面参数数组中的第二个值，而对于第二类“:参数名”占位符来说其顺序和参数名是一一对应，与排列的顺序没有关系。
 
 ### 8.5.2 ORM数据库模型的定义与初始化
+
+
 
 ### 8.5.3 使用模型的的CURD操作
 
