@@ -1010,7 +1010,7 @@ CREATE TABLE `person_info` (
 );
 
 --向数据表person_info中插入数据
-INSERT INTO `person_info` VALUES (1,'张三',1),(2,'李四',0),(3,'王五',1);
+INSERT INTO `person_info` VALUES (1,'张三',1, 90),(2,'李四',0, 80),(3,'王五',1, 77);
 ```
 
 当数据完成后，就在可以在Index模块的index()函数中可以使用Db类中query()和execute()函数来读取数据库的操作。在下面的例子中将通过查询语句来实现数据表“person_info”的查询，并且为了得到更好的显示效果，可以在config.php文件中把“default\_return\_type”的值由“html”改成“json”，具体代码和结果如下：
@@ -1075,7 +1075,7 @@ Db::execute('insert into think_user (id, name) values (:id, :name)',['id'=>8,'na
 
 表8-5 模型文件的命名
 
-| 模型名 | 约定对应数据表（假设数据库的前缀定义是 think_ |
+| 模型名 | 约定对应数据表（假设数据库的前缀定义是 think_） |
 | :-: | :- |
 | Person.php | think_person |
 | PersonInfo.php | think\_person\_info |
@@ -1234,7 +1234,204 @@ return $person->where('id > 0')->select();
 
 图8-12 两种方式进行数据查询的结果
 
-### 8.5.3 数据模型的高级查询使用
+### 8.5.3 数据模型中的高级应用
+
+在TP模型中除了提供了常用的数据表增、删、改、查之外，还提供了很多非常方便的功能，能够帮助开发人员省去不少的开发时间和代码量，本节将会介绍其中常用了六个功能，分别是模型中的聚合方法、获取器、修改器、自动时间戳、模型的软删除、模型的分层设计，下面将详细介绍这八个功能。
+
+**1、模型中的聚合方法：** 所谓聚合，就是和SQL语句中的聚合具有相同的概念，只是在TP中提供了更为便捷的五个函数用于完成数据库的聚合方法，具体代码如下：
+
+表8-6 模型中的聚合方法
+
+| 方法名 | 说明 |
+| :-: | :- |
+| count() | 统计查询后的数据项的个数 |
+| max("字段名") | 获取最大值，参数为要进行判断最大值的字段名 |
+| min("字段名") | 获取最小值，参数为要进行判断最小值的字段名 |
+| avg("字段名") | 获取平均值，参数为要进行求和取平均的字段名 |
+| sum("字段名") | 获取求和值，参数为要进行求和的字段名 |
+
+通过SQL语句修改原先的“think_person”数据表，在数据表的“sex”字段之后添加“score”字段，用于保存学生的分数，然后就可以通过聚合函数来计算分数的平均值、最高分、最低分等，具体SQL代码和PHP代码如下：
+
+```sql
+ALTER TABLE `think_test`.`think_person` 
+ADD COLUMN `socre` VARCHAR(45) NOT NULL AFTER `sex`;
+```
+
+```php
+$person = new Person();
+
+// 获取查询后数据项的个数
+return $person->where('id > 0')->cout();
+// 获取查询后分数的最高值
+return $person->where('id > 0')->max(“score”);
+// 获取查询后分数的最低分
+return $person->where('id > 0')->min(“score”);
+// 获取查询后分数的平均值
+return $person->where('id > 0')->avg(“score”);
+// 获取查询后分数的求和
+return $person->where('id > 0')->sum(“score”);
+```
+
+**2、获取器：** 获取器的目的在于通过模型获取数据时，TP可以对这些数据进行自动的处理，例如在数据库中表示性别通常是使用0或1来表达，但是这样的数据不利于数据的显示，因此可以利用TP中的获取器把这些简单的状态数据转化为能够识别的数据。获取器的使用非常简单，只需要在模型内部创建一个“get属性名Attr($value)”的函数，并且该属性名采用驼峰命名法，就可以实现字符的转化，具体代码如下：
+
+```php
+class Person extends Model
+{
+    protected $pk = 'id';
+
+    // 添加一个获取器，把sex字段自动转化为男和女
+    public function getSexAttr($value)
+    {
+        $sex = [0 => '女', 1 => '男'];
+
+        return $sex[$value];
+    }
+}
+```
+
+当在Person模型中添加上述代码之后，再重新执行下面的代码，就可以得到如图8-13所示的结果，从结果可以看出其”sex“字段已经改为了”男“和”女“，而不再是”0“和”1“。
+
+```php
+$person = new Person();
+return $person->where('id > 0')->select();
+```
+
+![get_attr](Screenshot/get_attr.png)
+
+图8-13 获取器的使用
+
+**3、修改器：** 修改器的目的在于通过模型设置数据时，TP可以对这些数据进行自动的处理，例如在向数据表中的字段”name“赋值时，可以把所有的字母都转化为小写，以便把数据转化为统一格式。修改器的使用非常简单，只需要在模型内部创建一个“set属性名Attr($value)”的函数，并且该属性名采用驼峰命名法，就可以实现字符的转化，具体代码如下：
+
+```php
+class Person extends Model
+{
+    protected $pk = 'id';
+
+    // 添加一个修改器，把name字段自动转化为小写
+    public function setNameAttr($value)
+    {
+        return strtolower($value);
+    }
+}
+```
+
+当在Person模型中添加上述代码之后，再重新执行下面的代码，就可以在数据库中得到如图8-14所示的结果，从结果可以看出其”name“字段值已经改为了小写。
+
+```php
+$person = new Person();
+
+$person->name = 'SISO';
+$person->sex = 1;
+return $person->save();
+```
+
+![set_attr](Screenshot/set_attr.png)
+
+图8-14 修改器的使用
+
+**4、自动时间戳：** 所谓自动时间戳，就是在向数据表中添加数据时，如果需要填入创建的时间或者修改的时间，那么TP就会自动向这些字段中填入相应的时间戳。要在模型中使用自动时间戳共分为两步走，分别如下：
+
+第一步：要在模型中添加属性”protected $autoWriteTimestamp = true“，时间戳支持的数据类型有三种，分别是timestamp、datetime和int，默认情况下时间戳字段的数据类型为int，但如果在创建该字段时不是使用的int类型，而是datetime类型，那么就需要把$autoWriteTimestamp属性改为”protected $autoWriteTimestamp = 'datetime'”。
+
+第二步：就是在数据表中设置自动时间戳的字段名称，分别是create\_time和update\_time，用于表示数据项的创建时间和修改时间。
+
+上面的两个步骤都完成之后，当向数据表中添加数据时，TP就会自动向create\_time字段添加当前时间，而当修改字段时，那么TP就会添加或者更新update\_time中的时间，具体代码如下：
+
+```php
+class Person extends Model
+{
+    protected $pk = 'id';
+
+    // 添加自动时间戳，并且数据类型为datetime
+    protected $autoWriteTimestamp = 'datetime';
+}
+```
+
+添加往上面的代码之后，接下来修改Person数据表，并且在该数据表中添加两个datetime类型的字段，分别是create\_time和update\_time，具体的SQL代码如下：
+
+```sql
+ALTER TABLE `think_test`.`think_person` 
+ADD COLUMN `create_time` DATETIME NULL AFTER `socre`,
+ADD COLUMN `update_time` DATETIME NULL AFTER `create_time`;
+```
+
+当在Person数据表中添加了create\_time和update\_time字段之后，接下来重新执行下面的代码，就可以在数据库中得到如图8-15所示的结果，从结果可以看出其”create\_time“和”update\_time“字段值都已经被自动添加。
+
+```php
+$person = new Person();
+
+$person->name = '鸣人';
+$person->sex = 1;
+return $person->save();
+```
+
+![auto_timestamp](Screenshot/auto_timestamp.png)
+
+图8-15 自动时间戳的使用
+
+**5、模型的软删除：** 在实际项目中，如果经常对数据频繁使用删除操作会导致比较严重的性能问题，并且直接删除数据也不利于后续数据的恢复，因此通常的做法是在数据表字段中加入一个字段来表示该数据时候已经被删除，这种方法称为软删除。因此，所谓软删除其实质就是把数据项上加一个删除标记，而不是真正的删除。要在TP中使用软删除，也是要经过两个步骤，具体如下：
+
+第一步：在模型中引入SoftDelete特性，即在模型中添加SoftDelete的头，并且在模型中使用SoftDelete。
+
+第二步：在数据表中添加一个叫“delete\_tiem”的字段，该字段用于存放删除的时间，并且模型情况下值为NUll。
+
+经过上面的两个步骤就完成了模型软删除的添加，具体代码如下：
+
+```php
+use think\Model;
+
+// 添加软删除的引用
+use traits\model\SoftDelete;
+
+class Person extends Model
+{
+    use SoftDelete;
+
+    protected $pk = 'id';
+
+    protected $autoWriteTimestamp = 'datetime';
+
+    // 绑定软删除在数据表中的字段名
+    protected $deleteTime = 'delete_time';
+}
+```
+
+添加往上面的代码之后，接下来修改Person数据表，并且在该数据表中添加字段datetime类型的字段“delete_time”，具体的SQL代码如下：
+
+```sql
+ALTER TABLE `think_test`.`think_person` 
+ADD COLUMN `delete_time` DATETIME NULL AFTER `update_time`;
+```
+
+当在Person数据表中添加了delete\_time字段之后，接下来重新执行下面的代码，就可以在数据库中看到delete\_time字段值都已经被自动添加。
+
+```php
+$person = new Person();
+return $person->where('id=3')->delete();
+```
+
+**6、模型的分层设计：** 所谓模型分层，是为了更好的实现代码之间的解耦，实现模块功能的单一化，例如要把index模块中的模型分为三个部分，分别是数据层、逻辑层、服务层，那么就可以在index模块目录下创建model、logic和service三个文件夹，在这三个文件夹中再创建的继承于Model的模型类就分别对应上面的三个层次，这三个层次的功能如下：
+
+（1）数据层：application\index\model\User.php 用于定义数据相关的自动验证和自动完成和数据存取接口
+
+（2）逻辑层：application\index\logic\User.php 用于定义用户相关的业务逻辑
+
+（3）服务层：application\index\service\User.php 用于定义用户相关的服务接口等
+
+因为TP默认情况下只认model目录下的模型，因此需要通过Loader类下的model()函数来指定载入模型的位置，具体代码如下：
+
+```php
+// 载入index\model目录下的User.php模型类
+Loader::model('User');
+
+// 载入index\logic目录下的User.php模型类
+Loader::model('User','logic');
+
+// 载入index\service目录下的User.php模型类
+Loader::model('User','service');
+```
+
+从上面的Loader::model()函数可以看出该函数的第一个参数为模型类的类名，而第二个参数则表示的是模型类型所在的文件夹的名称。
 
 ## 8.6 ThinkPHP内置模板引擎与视图的使用
 
