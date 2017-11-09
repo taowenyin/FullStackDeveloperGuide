@@ -1439,19 +1439,201 @@ Loader::model('User','service');
 
 ### 8.6.1 视图初始化与模板中值的传递
 
-在TP中，和模板引擎绑定最为紧密的就是控制器，也就是说通常要显示HTML的控制器就必须继承于父类Controller，通过以下五个函数来实现对HTML模板的操作，这些函数如表8-6所示。
+在TP中，和模板引擎绑定最为紧密的就是控制器，也就是说通常要用于显示HTML的控制器就必须继承于父类Controller，再通过以下常用的两个函数来实现对HTML模板的操作，这些函数如表8-6所示。
 
 表8-6 TP中模板函数
 
 | 函数名 | 说明 |
 | :-: | :- |
-| fetch() | 模板的渲染并输出 |
-| display() | 渲染内容输出 |
 | assign() | 模板变量的赋值 |
-| engine() | 模板引擎的初始化 |
+| fetch() | 模板的渲染并输出 |
 
+其中assign()函数主要用于向HTML模板中的变量进行赋值，并且该函数有两种参数的重载，一种形式是assign($name, $value)，该形式的第一个参数表示HTML模板中的变量名，第二个参数则表示HTML模板中的变量值，而第二种形式则是assign($array)，该形式的参数表示的是一个以键值对形式保存的数组，当控制器调用第二种形式时，会解析参数数组，然后根据数组中的键值对的Key找到HTM模板中的变量，传入该Key值对应的值，具体代码如下：
 
+```php
+namespace index\app\controller;
 
-### 8.6.2 特殊字符的替换与模板继承
+use think\Controller;
+
+class Index extends Controller
+{
+    public function index()
+    {
+        // 模板变量赋值
+        $this->assign('name','ThinkPHP');
+        $this->assign('email','thinkphp@qq.com');
+        // 或者批量赋值
+        $this->assign([
+            'name'  => 'ThinkPHP',
+            'email' => 'thinkphp@qq.com'
+        ]);
+    }
+}
+```
+
+而fetch()函数则主要用于模板的渲染，即把动态的、包含模板变量等属性的HTML模板渲染成静态的HTML代码进行显示，fetch()函数除了具有模板渲染功能之外，还能够实现assign()的部分功能，即向模板中的变量传值，fetch()函数的原型如下：
+
+```php
+fetch('[模板文件]'[, '模板变量（数组）']);
+```
+
+从原型可以看到fetch()函数实际上可以不带任何参数，如果只带一个参数，那么第一个参数表示指定模板的文件名，而如果带两个参数，那么第二个参数就是要传递到HTML模板的键值对数组。实际上，该函数使用最多的情况就是不带任何参数，此时fetch()函数会默认渲染“当前模块/view/当前控制器（小写）/当前操作（小写）.html”，例如在Index控制器下面的index()函数中调用fetch()，那么就会默认的渲染“index/view/index/index.html”。如果fetch()指定了模板名称，那么TP就会到“index/view/index”文件夹下找和传入的模板名称相同的HTML文件，如果此时fetch()函数还带了键值对数组，那么就会把键值对数组传入模板，替换模板中的变量，具体代码如下，结果如图8-16。
+
+```php
+namespace index\app\controller;
+
+use think\Controller;
+
+class Index extends Controller
+{
+    public function index()
+    {
+        // 模板变量赋值
+        $this->assign('name','ThinkPHP');
+
+        // 不带任何参数 自动定位当前操作的模板文件
+        return $this->fetch();
+    }
+}
+```
+
+![assign-fetch](Screenshot/assign-fetch.png)
+
+图8-16 TP中变量的赋值和渲染
+
+从上面的例子可以看到，模板中的变量都是通过大括号的方式，把模板变量包在其中，如{$变量名}。此外，在TP中除了可以向模板中传递单个变量值之外，还可以传递数组变量，当传递数组变量时，HTML模板的替换变量的形式为“{$数组名.数组项名}”，很多时候为了防止在页面渲染时，模板内的变量没有赋值引发的错误或者异常，TP模板提供了变量的默认值来解决这个问题，其形式为“{$变量名|default="默认值"}”，具体代码如下：
+
+**PHP代码：**
+
+```php
+$data['name'] = 'ThinkPHP';
+$data['email'] = 'thinkphp@qq.com';
+$view->assign('data',$data);
+```
+
+**HTML模板代码：**
+
+```html
+<!-- 模板中数组变量的使用 -->
+Name：{$data.name}
+Email：{$data.email}
+
+<!-- 模板中变量默认值的使用 -->
+{$user.nickname|default="张三"}
+```
+
+除了通过TP向模板传递变量之外，在TP的模板中还可以调用PHP中的相关函数，这种函数的调用分为两种：
+
+1、只有一个参数的函数调用。当在模板中要调用只有一个参数的函数时，采用的形式为{$变量名|函数名}，具体代码如下：
+
+```html
+<!-- 模板中函数的使用 -->
+{$data.name|md5} 
+```
+
+2、有多个参数的函数调用。当在模板中要调用带有多个参数的函数时，采用的形式为{$变量名|函数名="变量名1", ###, ...}，即每个参数使用逗号作为分割，当函数的参数需要用到“|”左边的变量名时，则使用特殊符号“###”来表示，具体代码如下：
+
+```html
+<!-- 模板中函数的多参数的使用 -->
+{$create_time|date="y-m-d",###}
+```
+
+### 8.6.2 模板中运算符和条件语句的使用
+
+在Web开发中，经常会碰到不同账号显示的页面结果不同，以及页面显示的数据需要通过不同数据计算后才能得到，以及在列表显示时需要从数组数据中通过循环方式把每一项数据都取出来，对于这些场景的应用TP模板提供三类基本的功能，分别是模板中运算符的使用、模板中循环的使用、模板中条件判断的使用。
+
+**1、模板中运算符的使用：** 在TP模板中可以支持所有的简单运算符，以及三目运算符，具体如表8-7所示。
+
+表8-7 模板中运算符
+
+| 运算符 | 使用方法 |
+| :-: | :- |
+| + | {$a+$b} |
+| - | {$a-$b} |
+| * | {$a*$b} |
+| / | {$a/$b} |
+| % | {$a%$b} |
+| ++ | {$a++}或{++$a} |
+| -- | {$a--}或{--$a} |
+| 布尔类型表达式 ？ 表达式1 : 表达式2 | $status? '正常' : '错误' |
+
+**2、模板中循环的使用：** 在Web页面中，经常会出现表格、列表等一系列可以循环输出的内容，为了解决这个问题，在TP模板中提供两种循环的方式来解决该问题，第一种是使用关键字volist来实现数据集的查询，第二种则是通过for关键字来实现行为的循环执行。
+
+1、关键字volist来实现数据集的查询：当在TP中向模板传递数组时，在HTML模板代码可以通过关键字volist来解析，并且volist关键字有两个参数，分别是name和id，其中name表示传递到模板的变量名，而id则表示变量名所对应的数组中的数组项，具体代码如下，效果如图8-17所示。
+
+**PHP代码：** 
+
+```php
+$list = array (
+    array('name' => '张三', 'tel' => '12345'),
+    array('name' => '李四', 'tel' => '23456'),
+    array('name' => '王五', 'tel' => '34567')
+);
+$this->assign('list',$list);
+```
+
+**HTML模板代码：** 
+
+```html
+{volist name="list" id="data"}
+    {$data.name}:{$data.tel}<br/>
+{/volist}
+```
+
+![volist](Screenshot/volist.png)
+
+图8-17 volist的使用
+
+2、关键字for来实现行为的循环执行：首先读者要知道的是for语句的使用场景和volist是有区别的，volist主要是用于获取数据集中的数据，而for循环则用于调节某个行为执行的次数，例如表格要显示几行，列表要显示几个等。for关键字有五个参数，其中开始值、结束值、步进值和循环变量都以变量的形式存在，并且开始值和结束值是必须，其他是可选。comparison表示循环判断的条件，默认值是lt，表示当循环变量名的值小于结束值时，循环继续执行，如果要判断大于的话，则comparison的值为gt，name的默认值是i，步进值的默认值是1，表示执行玩一次循环，循环变量名的值就加1，具体代码如下：
+
+```html
+{for start="开始值" end="结束值" comparison="" step="步进值" name="循环变量名" }
+{/for}
+```
+
+**3、模板中条件判断的使用：** 模板的条件判断分为六种，分别是SWITCH、IF、IN和NOTIN、BETWEEN和NOTBETWEEN。其中特别要说明的是IN和NOTIN表示的是时候属于一组数据列表中的一个，其value是多个值，而BETWEEN和NOTBETWEEN表示的是在某个范围之类，其value只有两个字，分别是这个范围的最小和最大值，具体代码如下：
+
+```html
+{switch name="变量" }
+    {case value="值1" break="0或1"}输出内容1{/case}
+    {case value="值2"}输出内容2{/case}
+    {default /}默认情况
+{/switch}
+```
+
+```html
+{if condition="($name == 1) OR ($name > 100) "} value1
+    {elseif condition="$name eq 2"/}value2
+    {else /} value3
+{/if}
+```
+
+```html
+{in name="id" value="1,2,3"}
+    id在范围内
+{/in}
+
+{notin name="id" value="1,2,3"}
+    id不在范围内
+{/notin}
+```
+
+```html
+{between name="id" value="1,10"}
+    输出内容1
+{/between}
+
+{notbetween name="id" value="1,10"}
+    输出内容2
+{/notbetween}
+
+{between name="id" value="1,10"}
+    输出内容1
+    {else/}
+    输出内容2
+{/between}
+```
+
+### 8.6.3 模板布局与模板继承的使用
 
 ## 8.7 小结
