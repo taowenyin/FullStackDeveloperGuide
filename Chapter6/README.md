@@ -30,5 +30,12 @@
 
 ### 6.1.1 Bootstrap框架的引入
 
-在Bootstrap官网（http://www.bootcss.com/）提供针对三类不同开发者的工具，第一类是针对普通开发者用于进行系统开发Bootstrap，即生产环境的Bootstrap，在这类源码中提供了系统开发所必须的JavaScript、CSS和字体文件；第二类是针对Bootstrap源码开发者，提供对Bootstrap进行二次开发的源码，包括CSS的预编译文件Less、JavaScript和字体文件；第三类是针对使用Sass作为CSS的预编译文件的开发者，提供了从Less移植到Sass的工具，可以帮助开发者快速构建基于Sass的Bootstrap源码。
+由于Bootstrap采用MIT的开源许可证，在法律上允许任何人修改它的代码，并变为自己的代码，同时还可以用于商业用途，因此Twitter为Bootstrap提供了最为宽松的版权协议，也因为这个，在Bootstrap官网（https://v3.bootcss.com/getting-started/）提供针对三类不同开发者的Bootstrap源码，分别是：
 
+**1、针对普通开发者：** 大多数开发者都属于这一类，包括笔者也是，这类开发者主要使用Bootstrap工具进行各类B/S系统的开发，因此Twitter为这类开发者提供了系统开发所必须的JavaScript、CSS和字体文件，即用于生产环境的源码，只需要导入到页面中就可以使用。
+
+**2、针对需要定制Bootstrap的开发者：** 这类开发者通常需要基于Bootstrap源码进行二次深度定制，从而形成自己的产品，因此针对这类开发者Twitter提供了编译为生产环境所需的Bootstrap源码，包括CSS的预编译文件Less、JavaScript和字体文件。
+
+**3、针对使用Sass作为CSS预编译工具的开发者：** 而第三类确切的说也属于第二类，只是该类的开发者使用的CSS预编译语言不是Less，而是Sass，因此Twitter提供了从Less移植到Sass的工具，可以帮助这类开发者快速构建基于Sass的Bootstrap源码。
+
+本章主要针对的是普通开发者，因此进入Bootstrap官网后就可以看到提供的
