@@ -22,11 +22,11 @@
 
 **3、一致性较低：** 由于针对的设备不同，以及开发人员的不同，因此PC和移动端之间较难做到一致性，使得用户感受存在差异。
 
-针对以上存在的问题，2010年起Twitter公司的几名前端工程师成立兴趣小组，就开始研究和开发建立能够帮助设计师和开发人员快速构建统一的、美观的，并且能够跨平台的前端工具包，经过1年多的打磨将其在GitHub开源，并命名为Bootstrap，从而普惠全世界的开发人员。严格来说，Bootstrap其本质是一个CSS的框架，开发人员只需在相应的标签上添加需要的CSS类就可以实现不同的功能。而在其内部，Bootstrap使用标准的HTML5和CSS3作为开发基础，因此要让Bootstrap的特性都发挥出来，那么开发的目标浏览器也需要能够支持HTML5和CSS3，到笔者撰写为止，各大浏览器提供商所提供的最新浏览器都能很好的支持Bootstrap。此外，在Bootstrap中，还通过引入第三方JavaScript标准库JQuery来实现各类UI组件的交互，例如导航条、下拉菜单等。因此可以说，Bootstrap为前端开发人员提供了一站式的前端解决方案。
+针对以上存在的问题，2010年起Twitter公司的几名前端工程师成立兴趣小组，就开始研究和开发建立能够帮助设计师和开发人员快速构建统一的、美观的，并且能够跨平台的前端工具包，经过1年多的打磨将其在GitHub开源，并命名为Bootstrap，Bootstrap的Logo如图6-1所示。从而普惠全世界的开发人员。严格来说，Bootstrap其本质是一个CSS的框架，开发人员只需在相应的标签上添加需要的CSS类就可以实现不同的功能。而在其内部，Bootstrap使用标准的HTML5和CSS3作为开发基础，因此要让Bootstrap的特性都发挥出来，那么开发的目标浏览器也需要能够支持HTML5和CSS3，到笔者撰写为止，各大浏览器提供商所提供的最新浏览器都能很好的支持Bootstrap。此外，在Bootstrap中，还通过引入第三方JavaScript标准库JQuery来实现各类UI组件的交互，例如导航条、下拉菜单等。因此可以说，Bootstrap为前端开发人员提供了一站式的前端解决方案。
 
 ![Bootstrap-Logo](Screenshot/bootstrap-logo.png)
 
-图5-1 Bootstrap的图标
+图6-1 Bootstrap的图标
 
 ### 6.1.1 Bootstrap框架的引入
 
@@ -38,7 +38,7 @@
 
 **3、针对使用Sass作为CSS预编译工具的开发者：** 而第三类确切的说也属于第二类，只是该类的开发者使用的CSS预编译语言不是Less，而是Sass，因此Twitter提供了从Less移植到Sass的工具，可以帮助这类开发者快速构建基于Sass的Bootstrap源码。
 
-因此，本章的内容主要针对的是普通开发者，进入Bootstrap官网后就可以看到提供的下载链接，如图5-2所示。此外，为了使Bootstrap能提供更好的跨区域访问速度，Bootstrap联合国内的云服务商提供了免费的CDN加速服务，需要特别注意的是，因为Bootstrap中所有的JavaScript插件，包括UI组件都依赖于JQuery进行开发，因此在引入Bootstrap核心JavaScript库之前，需要引入JQuery才能提供完整的功能，并且JQuery的版本需要在1.9.1以上，在具体代码如下：
+因此，本章的内容主要针对的是普通开发者，进入Bootstrap官网后就可以看到提供的下载链接，如图6-2所示。此外，为了使Bootstrap能提供更好的跨区域访问速度，Bootstrap联合国内的云服务商提供了免费的CDN加速服务，需要特别注意的是，因为Bootstrap中所有的JavaScript插件，包括UI组件都依赖于JQuery进行开发，因此在引入Bootstrap核心JavaScript库之前，需要引入JQuery才能提供完整的功能，并且JQuery的版本需要在1.9.1以上，在具体代码如下：
 
 ```html
 <!-- 最新版本的Bootstrap核心CSS文件 -->
@@ -56,17 +56,17 @@
 
 ![Bootstrap-download](Screenshot/bootstrap-download.png)
 
-图5-2 Bootstrap下载地址
+图6-2 Bootstrap下载地址
 
-下载并解压缩Bootstrap后，就可以看到如图5-3所示的目录结构，其中CSS目录存放Bootstrap的样式文件，JS目录存放Bootstrap的核心库文件，Fonts目录存放Bootstrap所使用的字体文件，在这些文件里面会看到有xxx.min.xxx和xxx.map这两类较为特殊文件，其中带min的文件表示经过压缩后的文件，CSS和JavaScript的压缩与图片、视频等多媒体文件的压缩方式不同，CSS和JavaScript的压缩通常是把文件中的空格、换行等内容进行替换和删除，从而减少文件的体积，而另外一个带map的文件，叫源码映射表，因为经过压缩的CSS和JavaScript文件在开发时无法精确的对源码进行调试，所以需要通过map文件把压缩后的文件转化为开发人员能够读懂，并且格式化的源码，从而方便程序的调试。
+下载并解压缩Bootstrap后，就可以看到如图6-3所示的目录结构，其中CSS目录存放Bootstrap的样式文件，JS目录存放Bootstrap的核心库文件，Fonts目录存放Bootstrap所使用的字体文件，在这些文件里面会看到有xxx.min.xxx和xxx.map这两类较为特殊文件，其中带min的文件表示经过压缩后的文件，CSS和JavaScript的压缩与图片、视频等多媒体文件的压缩方式不同，CSS和JavaScript的压缩通常是把文件中的空格、换行等内容进行替换和删除，从而减少文件的体积，而另外一个带map的文件，叫源码映射表，因为经过压缩的CSS和JavaScript文件在开发时无法精确的对源码进行调试，所以需要通过map文件把压缩后的文件转化为开发人员能够读懂，并且格式化的源码，从而方便程序的调试。
 
 ![bootstrap-Source](Screenshot/bootstrap-source.png)
 
-图5-3 Bootstrap的源码目录结构
+图6-3 Bootstrap的源码目录结构
 
 ### 6.1.2 Bootstrap基础模板的理解
 
-几乎所有软件工程师都是从Hello World开始编写，Bootstrap也提供了类似与Hello World的基础模板，具体代码如下：
+几乎所有软件工程师都是从Hello World开始编写，Bootstrap也提供了类似与Hello World的基础模板，具体如示例代码6-1所示。
 
 ```html
 <!DOCTYPE html>
@@ -98,6 +98,8 @@
 </html>
 ```
 
+例6-1 Bootstrap的HelloWorld
+
 **第4行：** 表示设置当前文档的编码方式为UTF-8，当浏览器读到该meta时就会采用执行的编码方式进行文件的解码，同时笔者也建议今后所有的源代码文档都采用UTF-8进行编码，方便在各系统间进行移植。
 
 **第5行：** 表示告诉IE浏览器采用最高级模式进行文档渲染，而不考虑向下兼容的问题，即IE7就采用IE7的模式进行渲染，IE10就采用IE10的模式进行渲染，因为目前有该meta的网页通常都是使用HTML5进行编写，因此只有文档渲染模式越新，那么所支持的HTML5越完整。此外，网上还有一种是修改content的值为"IE=edge,chrome=1"以提高浏览器对HTML5的兼容性，由于该方法需要在IE浏览器中安装Google的一款插件——Chrome Frame才能使用，但是目前该插件已经在2014年1月停止更新，所以该方法目前无法使用。
@@ -120,3 +122,139 @@
 
 ## 6.2 响应式的栅格系统运作原理的理解
 
+1692年，新登基的法国国王路易十四国王为了使法国的印刷制品的质量能有质的提升，命令成立一个管理印刷产品质量的皇家特别委员会。委员会的成员首要任务是设计出科学的、合理的，并且重视功能性的新字体。当时，该委员会由数学家尼古拉斯加宗担任支持，他们以罗马字体为基础，每个字体设计了由64个基本方格组成的基本单元，并且每个方格中还被分成了36个小格，通过把字体放在严谨的几何网格网络中进行设计和排版，从大大提升了当时法国印刷制品的品质。同时，这也是世界上最早的栅格系统雏形。
+
+目前栅格系统广泛的用于各类设计系统中，例如UI设计、图标设计、字体设计等，通过栅格系统的应用可以使产品设计的质量更高，同时栅格系统还能为设计提供很好的参考，工作效率大幅提升。所谓栅格系统，就是把一个页面分为若干行，以及若干列，其中行的高度不一定要相同，但是每列的宽度却是固定的，如图6-4所示。在Bootstrap中提供了一套把页面进行12等分的栅格系统，并且这个栅格系统中的每一列的宽度都会根据当前页面的宽度进行自动计算，同时列和列之间还能进行合并。
+
+![grid-system](Screenshot/grid-system.png)
+
+图6-4 栅格系统的概念
+
+### 6.2.1 响应式布局的核心——媒体查询
+
+随着终端设备的种类越来越多，屏幕分辨率、屏幕尺寸也越来越复杂，早起的网页设计已经无法提供在各种终端上进行完善的显示，例如在1024*768的显示器上进行设计网页，在1080P的显示器上就会显得各种尺寸都很小，而反过来又会显的很大。因此，为了解决这个问题从CSS 2.1开始加入了各种多媒体类型的定义，如显示器、移动设备等，通过这些媒体类型的设计可以帮助开发人员针对这些不同的设备进行不同的CSS样式设计。当浏览器在进行页面显示时，会根据当前屏幕的大小查询相应的媒体类型，以及该媒体类型中的CSS设置，从而显示不同效果。可以说，目前所有的响应式布局都是在此特性的基础上进行构建，也包括Bootstrap，因此了解媒体查询的使用对深入理解响应式布局和Bootstrap至关重要。
+
+媒体查询的设置语法如下：
+
+```css
+@media not|only 设备类型 [and (设备特征)] {样式列表}
+```
+
+**1、@media：** 表示该设置为一个媒体查询设置。
+
+**2、not|only：** 当该值为not时，表示设置除指定设备类之外的设备类型样式列表。
+
+**3、设备类型：** 表示媒体查询所支持的设备类型，其中sceen是最为常用的设备类型，如表6-1所示。
+
+表6-1 媒体查询支持的设备类型
+
+| 设备类型 | 说明 |
+| :-: | :- |
+| all | 适用于所有的设备 |
+| aural | 适用于语音和音频合成器 |
+| braille | 适用于触觉反馈设备 |
+| embossed | 适用于凸点文字（盲文）印刷设备 |
+| handheld | 适用于小型或者手提设备 |
+| print | 适用于打印机 |
+| projection | 适用于投影图像,如幻灯片 |
+| sceen | 适用于计算机显示器 |
+| tty | 适用于使用固定间距字符格的设备,如电传打字机和终端 |
+| tv | 适用于电视类设备 |
+
+**4、and （设备特征）：** 在媒体查询的语法中设备特征的数量可以从0-N个，通过设备特性的匹配可以对设备类型进行精确的匹配，从而显示不同的效果。同时，大多数的设备特征都是支持max和min的前缀，例如max-width、min-width分别表示最大、最小宽度，具体如表6-2所示。
+
+表6-2 可设置的设备特征
+
+| 设备特征 | 特性值规范 | 是否支持max/min | 说明 |
+| :-: | :- | :-: | :- |
+| color | 整数值 | 是 | 匹配设备使用多少位的色深,如果是彩色则该值为8，如果不是彩色设备则为0，如果RGB三色的位数不一样，那么就使用最小的位数作为该值 |
+| color-index | 整数值 | 是 | 匹配色彩表中的颜色数，例如要匹配的色彩表中有256个颜色，那么该值就为256 |
+| aspect-ratio | 浏览器宽高比值，如16/9、4/3 | 是 | 匹配浏览器的宽度值和高度值的比例 |
+| device-aspect-ratio | 设备宽高比值，如16/9、4/3 | 是 | 匹配设备分辨率的宽度值与高度值的比例 |
+| device-height | 整数值 | 是 | 匹配设备分辨率的高度值 |
+| device-width | 整数值 | 是 | 匹配设备分辨率的宽度值 |
+| grid |  0或1 | 否 | 匹配设备是网格设备还是位图设备。如果设备是基于网格的，如只能显示一种字体的电话，该值为1，否则为0 |
+| height | 整数值 | 是 | 匹配浏览器的高度 |
+| width | 整数值 | 是 | 匹配浏览器的宽度 |
+| monochrome | 整数值 | 是 | 匹配一个带灰度的黑白设备每个像素的比特数，如果该设备不是黑白设备，则该值为0，如果是具有256阶灰度的设备，则该值为8 |
+| orientation | landscape/portrait | 否 | 匹配设备是处于横屏还是竖屏，landscape表示横屏，即宽度大于高度，portrait表示竖屏，即高度大于宽度 |
+| resolution | 分辨率，如300dpi | 是 | 匹配设备的物理分辨率，即像素密度 |
+| scan | progressive/interlace | 否 | 匹配设备的扫描方式,其中progressive代表逐行扫描，interlace代表隔行扫描 |
+
+从上面的语法解释不难看出，在前端页面设计中大部分的物理特性都可以通过媒体查询的方式进行检索和过滤，通过这种方式就可以开发人员就可以针对不同的物理特性去设置不同的内容，下面通过一个简单的例子来进行说明，具体如示例代码6-2所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>媒体查询示例</title>
+
+    <style>
+        html {
+            font-size: 10px;
+        }
+        h2 {
+            font-size: 2rem;
+        }
+        span {
+            font-size: 1rem;
+        }
+        /* 媒体查询设置 */
+        @media screen and (min-width: 320px) and (max-width: 420px) {
+            html {
+                font-size: 5px;
+            }
+        }
+        @media screen and (min-width: 421px) and (max-width: 520px) {
+            html {
+                font-size: 10px;
+            }
+        }
+        @media screen and (min-width: 521px) and (max-width: 620px) {
+            html {
+                font-size: 15px;
+            }
+        }
+        @media screen and (min-width: 621px) and (max-width: 720px) {
+            html {
+                font-size: 20px;
+            }
+        }
+        @media screen and (min-width: 721px) and (max-width: 820px) {
+            html {
+                font-size: 25px;
+            }
+        }
+        @media screen and (min-width: 821px) and (max-width: 920px) {
+            html {
+                font-size: 30px;
+            }
+        }
+        @media screen and (min-width: 921px) {
+            html {
+                font-size: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>苏州工业园区服务外包职业学院</h2>
+        <span>嵌入式技术与应用专业</span>
+    </div>
+</body>
+</html>
+```
+
+例6-2 媒体查询的示例
+
+在上面的代码中，设置了多个媒体查询，在这些查询中都以浏览器的最大宽度和最小宽度作为设备特征，当浏览器宽度属于某个范围内时，就会修改HTML根标签的字号。这里需要特别说明的是，在样式列表中还定义了h2和span标签的字号，并且这个字号设置的单位不是px而rem，rem是一个相对字号单位，其相对的目标是HTML根标签内设置的字号。因此当浏览器大小发生改变时，除了修改HTML根标签的字号，其实还同时修改了h2和span的字号。也因为rem单位的特殊性和相对性，所以自从有了响应式页面的需求，该单位才开始崭露头角成为现在响应式页面的字号单位的主流，示例代码的结果如图6-5所示。
+
+![media-query](Screenshot/media-query.png)
+
+图6-5 栅格系统的效果图
+
+### 6.2.2 Bootstrap中栅格系统的实现
