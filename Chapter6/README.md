@@ -6,7 +6,7 @@
 
 > * Bootstrap简介与库文件的导入
 > * 响应式的栅格系统运作原理的理解
-> * 响应式的排版元素和表单元素的应用
+> * 页面组件的全局样式设定
 > * 响应式的导航栏与常用组件的应用
 > * Bootstrap框架与JavaScript插件的组合应用
 
@@ -371,4 +371,270 @@ Bootstrap中对栅格系统做了进一步的完善和改进，并且把网页�
 }
 ```
 
-### 6.2.3 Bootstrap中栅格系统的使用方法
+### 6.2.3 Bootstrap中栅格系统的页面布局
+
+要正确的使用栅格系统设计响应式页面首先需要了解栅格系统中栅格的水平排列和垂直排列（或者称为堆叠排列）之间的切换。上一节讲过Bootstrap通过媒体查询的方式实现栅格系统，当浏览器的宽度大于某个阈值时，那么这些栅格就为水平排列，而当浏览器的宽度小于某个阈值时，那么这些栅格就为垂直排列，下面以响应式容器container和col-md-?为例进行说明，示例代码如例6-3所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    ......
+
+    <style>
+        html {
+            font-size: 10px;
+        }
+
+        .row div {
+            background-color: #9ACFEA;
+            border: 1px #66AFE9 solid;
+            font-size: 1.5rem;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .row {
+            margin-bottom: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+            <div class="col-md-1">.col-md-1</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">.col-sm-8</div>
+            <div class="col-sm-4">.col-sm-4</div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-sm-4">.col-md-4 .col-sm-4</div>
+            <div class="col-md-4 col-sm-4">.col-md-4 .col-sm-4</div>
+            <div class="col-md-4 col-sm-4">.col-md-4 .col-sm-4</div>
+        </div>
+    </div>
+
+    ......
+</body>
+</html>
+```
+
+例6-3 栅格排列的示例
+
+在上面的代码中有两种栅格列前缀，分别时col-md-？和col-sm-？，这两个前缀如表6-3所示，表示浏览器宽度大于992px和768px的列样式。同时，在上面的代码中，有两种栅格的使用方法，一种为列只添加栅格样式，另外一种则是为列添加多种栅格样式，如第三个row所示。执行代码，并对浏览器进行缩放，当浏览器的宽度大于等于992px时，会看到如图6-6所示的效果，每个栅格都以水平排列的方式显示在浏览器上。而浏览器的宽度小于992px时，栅格系统就会发生变化，第一个row中原先水平排列的栅格变为以垂直形式排列的栅格，但是此时第二个row和第三个row依然以水平方式进行排列，对于第二个row来说，这是因为当前行中的栅格定义为col-sm-？的列，其浏览器宽度的阈值为768px，此时浏览器的宽度还大于该值，而对于第三个row来说，由于采用md和sm混排的方式，因此Bootstrap在内部计算时会以最小的那个类型作为是水平排列还是垂直排列的依据，因此第三个row的情况就和第二个row相同，如图6-7所示。此时，继续缩小浏览器宽度，当浏览器宽度小于768px时，所有的栅格都变为垂直排列，如图6-8所示。
+
+![screen-992](Screenshot/screen-992.png)
+
+图6-6 浏览器宽度大于992px的效果
+
+![screen-991](Screenshot/screen-991.png)
+
+图6-7 浏览器宽度小于992px的效果
+
+![screen-767](Screenshot/screen-767.png)
+
+图6-8 浏览器宽度小于768的效果
+
+从上面的结果可以得出这样的结论，即在Bootstrap中如果浏览器的屏幕大于等于栅格所在类型的阈值时，那么栅格以水平方式进行排列，如果如浏览器的屏幕小于栅格所在类型的阈值时，那么栅格以垂直方式进行排列，如果某个栅格中存在两个以上的栅格类型，那么该栅格以最小的那个类型作为判断栅格是水平还是垂直排列的依据。
+
+通过Bootstrap的这一特性就可以创建针对移动端、平板和PC等不同屏幕尺寸的动态布局。上面说了，在Bootstrap中有四种栅格类型，分别是col-xs、col-sm、col-md和col-lg，其中col-xs主要设计针对移动设备，col-sm-则设计针对平板设备，而col-md和col-lg设计针对的是PC设备，因此如果希望页面在移动设备上不要以堆叠方式（垂直方式）排列，那么就需要为栅格添加col-xs样式，如果希望在平板设备上不要以堆叠方式显示，那么就需要在栅格上添加col-sm样式，示例代码如例6-4所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+......
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-8">.col-xs-12 .col-sm-6 .col-md-8</div>
+            <div class="col-sm-6 col-md-4">.col-sm-6 .col-md-4</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 col-sm-4">.col-xs-6 .col-sm-4</div>
+            <div class="col-xs-6 col-sm-4">.col-xs-6 .col-sm-4</div>
+            <div class="col-xs-6 col-sm-4">.col-xs-6 .col-sm-4</div>
+        </div>
+    </div>
+
+    ......
+</body>
+</html>
+```
+
+例6-4 针对手机、平板、PC的响应式布局示例
+
+运行上面的代码就可以看到，在第一行中，第一个栅格在移动端时，显示为占据一行，即col-xs-12起作用，在平板端时，col-sm-6起作用，第一个和第二个栅格以6:6的方式水平排列在页面中，而在PC端，则col-md起作用，第一个和第二个栅格以8:6的方式水平排列在页面中。而第二行中，由于col-xs的值之和大于12，因此这三个栅格在移动端时，显示为2行，第一个和第二个栅格组成一行，而多出的第三个栅格则另起一行，而这个三个栅格在平板段时，由于col-sm的值之和等于12，因此这三个栅格以水平方式进行排列，如图6-9和6-10所示。
+
+![ipad](Screenshot/ipad.png)
+
+图6-9 平板端显示效果
+
+![mobile](Screenshot/mobile.png)
+
+图6-10 移动端显示效果
+
+在进行页面布局时，经常会使用CSS中的margin等样式来设置页面元素的偏移量，在Bootstrap的栅格系统中也具有类似的功能，即通过“col-类型-offset-偏移数”这样的样式类型来实现，其中偏移数不能超过12，因为偏移量的设置只能作用于同一行，而一行最多是12列，示例代码如例6-5所示，效果如图6-11所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+......
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">.col-md-4</div>
+            <div class="col-md-4 col-md-offset-4">.col-md-4 .col-md-offset-4</div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-md-offset-3">.col-md-3 .col-md-offset-3</div>
+            <div class="col-md-3 col-md-offset-3">.col-md-3 .col-md-offset-3</div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">.col-md-6 .col-md-offset-3</div>
+        </div>
+    </div>
+
+    ......
+</body>
+</html>
+```
+
+例6-5 栅格的偏移示例
+
+![grid-offset](Screenshot/grid-offset.png)
+
+图6-11 栅格偏移的效果
+
+从上图不难看出，第一行中的第二个栅格偏移了4格，而第二行中的第一个栅格偏移了3格，第二个栅格偏移了3格，第三行中的栅格偏移三格。由此可知，通过对栅格进行设置可以方便的进行位置的偏移，但要确保每行中的栅格偏移量和栅格大小之和应该小于等于12。此外，在开发复杂页面时，经常会出现页面元素之间的相互嵌套，从而把整个页面由整体向局部递进式的设计和编码，Bootstrap中的栅格系统也具备同样的功能，即在一个栅格中添加一个新的行（row），然后再把改行分为多个小栅格进行布局，从而实现对某个栅格的局部再布局，并且新添加row的最大宽度为其父栅格的宽度，栅格嵌套的示例代码如例6-6所示，效果如图6-12所示。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    ......
+
+    <style>
+        html {
+            font-size: 10px;
+        }
+
+        .grid-block {
+            background-color: #9ACFEA;
+            border: 1px #66AFE9 solid;
+            font-size: 1.5rem;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-9 grid-block">
+                Level1：col-sm-9
+                <div class="row">
+                    <div class="col-xs-8 col-sm-6 grid-block">Level2：col-xs-8 col-sm-6</div>
+                    <div class="col-xs-4 col-sm-6 grid-block">Level2：col-xs-4 col-sm-6</div>
+                </div>
+            </div>
+            <div class="col-sm-3 grid-block">Level1：col-sm-3</div>
+        </div>
+    </div>
+
+    ......
+</body>
+</html>
+```
+
+例6-6 栅格的嵌套示例
+
+![grid-nested](Screenshot/grid-nested.png)
+
+图6-12 栅格嵌套的效果
+
+## 6.3 页面组件的全局样式设定
+
+在前端页面设计中，除了基本的布局外，就是对页面中所有组件进行标准化的排版，例如字体的大小、行间距、表格的表现形式，以及按钮的样式等。这些内容看似简单，但要设计出一套完整的、可修改、易扩展的样式套件具有一定难度，因此Bootstrap却提供了一套统一的CSS样式，通过这套样式可以快速的完成页面中所有元素的渲染，从而使得整个页面排版更加简单，风格也更加统一。在Bootstrap中为几乎所有的标签都有其基本的设定，例如全局的字体大小为14px，行高（line-height）为1.428，即20px，又如<p>被设置了等于1/2行高（即10px）的底部外边距等诸如此类的默认设置，此外Bootstrap还添加了一些可以根据需求添加的样式，例如表格是否带条纹，是否带悬停效果等，因此本节主要针对这些需要根据需求自行添加的内容进行讲解，并嵌入一些常用的默认设置。Bootstrap中的全局样式共分为五类，分别是文本样式、表格样式、表单样式、按钮样式，以及图片样式，下面就进行详细的说明。
+
+### 6.3.1 Bootstrap中的文本样式
+
+**1、文字对齐：** Bootstrap提供了五种文字对齐的方式，分别是左对齐（text-left）、右对齐（text-right）、居中对齐（text-center）、双端对齐（text-justify），以及不自动换行（text-nowrap），其中除了text-nowrap使用的是white-space属性进行设置，其他都是通过CSS属性text-align进行设置，具体代码如下，效果如图6-13所示。
+
+```html
+<p class="text-left">文字左对齐</p>
+<p class="text-right">文字右对齐</p>
+<p class="text-center">文字居中对齐</p>
+<p class="text-justify">文字双端对齐</p>
+<p class="text-nowrap">文字不进行换行</p>
+```
+
+![text-align](Screenshot/text-align.png)
+
+图6-13 文字对齐的效果
+
+**2、英文大小写的转换：** Bootstrap中提供了三种样式来进行英文字母的大小写转换，分别是转换到大写（text-uppercase）、转换到小写（text-lowercase），以及首字母大写（text-capitalize），这三个样式都是通过CSS属性text-transform来实现，具体代码如下：
+
+```html
+<p class="text-lowercase">Lowercased text</p>
+<p class="text-uppercase">Uppercased text</p>
+<p class="text-capitalize">Capitalized text</p>
+```
+
+**3、多种引用样式：** 在页面设计中，进场会要引用一些名人名言等内容，Bootstrap提供了一个通过blockquote标签实现引用的模板，并且可以通过在blockquote标签中添加blockquote-reverse样式实现引用内容的左对齐和右对齐，具体代码如下，效果如图6-14所示。
+
+```html
+<blockquote>
+    <p>明月几时有，把酒问青天，不知天上宫阙，今夕是何年</p>
+    <footer>苏轼<cite title="Source Title">水调歌头</cite></footer>
+</blockquote>
+<blockquote class="blockquote-reverse">
+    <p>北国风光，千里冰封，万里雪飘</p>
+    <footer>毛泽东<cite title="Source Title">沁园春雪</cite></footer>
+</blockquote>
+```
+
+![text-reference](Screenshot/text-reference.png)
+
+图6-14 文字引用的效果
+
+### 6.3.2 Bootstrap中的表格样式
+
+
+
+### 6.3.3 Bootstrap中的表单样式
+
+
+
+### 6.3.4 Bootstrap中的按钮样式
+
+
+
+### 6.3.5 Bootstrap中的图片样式
+
+
+
+## 6.4 响应式的导航栏与常用组件的应用
+
+
+
+## 6.5 Bootstrap框架与JavaScript插件的组合应用
+
+
+
+## 6.6 小结
