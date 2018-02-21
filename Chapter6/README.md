@@ -596,7 +596,7 @@ Bootstrap中对栅格系统做了进一步的完善和改进，并且把网页�
 <p class="text-capitalize">Capitalized text</p>
 ```
 
-**3、多种引用样式：** 在页面设计中，进场会要引用一些名人名言等内容，Bootstrap提供了一个通过blockquote标签实现引用的模板，并且可以通过在blockquote标签中添加blockquote-reverse样式实现引用内容的左对齐和右对齐，具体代码如下，效果如图6-14所示。
+**3、多种引用样式：** 在页面设计中，经常会要引用一些名人名言等内容，Bootstrap提供了一个通过blockquote标签实现引用的模板，并且可以通过在blockquote标签中添加blockquote-reverse样式实现引用内容的左对齐和右对齐，具体代码如下，效果如图6-14所示。
 
 ```html
 <blockquote>
@@ -615,19 +615,493 @@ Bootstrap中对栅格系统做了进一步的完善和改进，并且把网页�
 
 ### 6.3.2 Bootstrap中的表格样式
 
+在页面设计中，表格是经常被使用的组件，Bootstrap也对表格做了一些标准化的设置和优化，但是由于以表格为基础延生出诸多类似日历、日期选择等多种的组件，因此出于兼容性的考虑，以及不影响其他控件的显示效果，Bootstrap并没有把表格的优化做成默认设置，而是采用在table标签上添加各类表格样式的方式来实现不同类型的表格显示。在Bootstrap中一共提供六种类型的表格样式，分别是默认表格（.table）、条纹表格（.table-striped）、边框表格（.table-bordered）、鼠标悬停的表格（.table-hover）、紧凑表格（.table-condensed）和响应式表格（.table-responsive）。此外，Bootstrap还提供了用于设置表格的行和单元格的五种状态颜色，分别是标识悬停状态的颜色（.active）、标识操作成功的颜色（.success）、标识提示信息或动作的颜色（.info）、标识警告的颜色（.warning），以及标识危险的颜色（.danger），并且这些颜色在后续按钮组件的设置中也会经常用到。
 
+**1、默认表格（.table）：** 默认表格的样式使用起来非常简单，只需要在table标签中添加样式"table"即可，具体代码如下，效果如图6-15所示。
+
+```html
+<table class="table">
+<thead>
+    <tr>
+        <th>编号</th>
+        <th>省份</th>
+        <th>城市</th>
+        <th>行政区</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>1</td>
+        <td>江苏</td>
+        <td>苏州</td>
+        <td>吴中区</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>浙江</td>
+        <td>余姚市</td>
+        <td>凤山街道</td>
+    </tr>
+</tbody>
+</table>
+```
+
+![normal-table](Screenshot/normal-table.png)
+
+图6-15 默认表格的效果
+
+在上面的代码中只添加了一个table样式就实现这个效果，接下来分析table样式的源码。
+
+```css
+.table {
+  width: 100%; /* 表格的宽度为100% */
+  max-width: 100%;
+  margin-bottom: 20px; /* 底部外边距为20px */
+}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+}
+.table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #ddd;
+}
+.table > caption + thead > tr:first-child > th,
+.table > colgroup + thead > tr:first-child > th,
+.table > thead:first-child > tr:first-child > th,
+.table > caption + thead > tr:first-child > td,
+.table > colgroup + thead > tr:first-child > td,
+.table > thead:first-child > tr:first-child > td {
+  border-top: 0;
+}
+.table > tbody + tbody {
+  border-top: 2px solid #ddd;
+}
+.table .table {
+  background-color: #fff;
+}
+```
+
+第1-5行：设置表格的的宽度为100%，如果浏览器的容器为响应式的容器，那么该表格的宽度响应式容器的宽度，如果浏览器的容器为浏览器宽度，那么表格的宽度就为整个浏览器的宽度，以及设置表格的底部外边距为20px。
+
+第6-16行：设置单元格内边距为8px，垂直对齐方向为上对齐，并且添加顶部边框，边框为1个像素、实线。
+
+第17-20行：设置表头的垂直对齐方向为下对齐，并添加底部边框，边框为2个像素、实线。
+
+第21-34行：设置表头的顶部边框宽度为0，即清除顶部边框。并且设置表格的背景颜色为白色（#FFF）。
+
+**2、条纹表格（.table-striped）：** 所谓条纹表格，就是表格中的奇数行和偶数行的背景颜色不同，也有的书上称作"斑马表格"。该表格的实现非常简单，只需要在默认表格的样式后面添加"table-striped"即可。条纹表格使用CSS中的伪类:nth-child()来实现，并且传入odd和even参数来实现奇数行和偶数行的不同背景颜色。具体代码如下，效果如图6-16所示。
+
+```html
+<table class="table table-striped">
+  ...
+</table>
+```
+
+![table-striped](Screenshot/table-striped.png)
+
+图6-16 条纹表格的效果
+
+**3、边框表格（.table-bordered）：** 默认情况下表格都不带边框，需要通过CSS样式进行设置才能显示边框，Bootstrap中通过在默认表格的基础上添加"table-bordered"样式从而实现边框表格。边框表格的实现原理是通过添加边框样式border来实现，具体代码如下，效果如图6-17所示。
+
+```html
+<table class="table table-bordered">
+  ...
+</table>
+```
+
+![table-border](Screenshot/table-border.png)
+
+图6-17 边框表格的效果
+
+**4、鼠标悬停的表格（.table-hover）：** 鼠标悬停表格就是当鼠标碰到表格的某一行时，其背景颜色突出显示，类似与在按钮标签中使用伪类hover实现鼠标悬停效果。在Bootstrap中要实现表格的悬停效果非常简单，只需要在默认表格的基础上添加“table-hover”样式即可。具体代码如下，效果如图6-18所示。
+
+```html
+<table class="table table-hover">
+  ...
+</table>
+```
+
+![table-hover](Screenshot/table-hover.png)
+
+图6-18 悬停表格的效果
+
+**5、紧凑表格（.table-condensed）：** 要实现紧凑型的表格只需要在默认表格的基础上添加“table-condensed”样式即可。所谓紧凑型的表格，就是把表格的内边距padding变为原先的一半，即5px。具体代码如下。
+
+```html
+<table class="table table-condensed">
+  ...
+</table>
+```
+
+“.table-condensed”样式的源码如此下，从源码可以看到其内边距为5px。
+
+```css
+.table-condensed > thead > tr > th,
+.table-condensed > tbody > tr > th,
+.table-condensed > tfoot > tr > th,
+.table-condensed > thead > tr > td,
+.table-condensed > tbody > tr > td,
+.table-condensed > tfoot > tr > td {
+  padding: 5px;
+}
+```
+
+**6、响应式表格（.table-responsive）：** 默认情况下，当浏览器不断变窄时，表格也同时会变窄，从而影响了正常内容的显示，但是使用响应式的表格则不会出现这样的问题。因为当屏幕宽度已经不能让表格的内容显示在一行上时，表格就会出现水平滚动条，而当屏幕宽度足够显示文字时，则水平滚动条消失。要实现响应式表格也与前面的条纹表格等类型的表格不同，需要在表格置于DIV标签之内，并且为这个DIV添加“table-responsive”样式，其内部的表格可以再根据实际情况进行样式的修改，具体代码如下，效果如图6-19所示。
+
+```html
+<div class="table-responsive">
+    <table class="table">
+    ...
+    </table>
+</div>
+```
+
+![table-responsive](Screenshot/table-responsive.png)
+
+图6-19 响应式表格的效果
+
+**7、表格的状态颜色：** 所谓的表格状态颜色，其本质是通过设备表格的行和表格的单元格的背景颜色来完成，这些颜色是Bootstrap默认风格的颜色，并且这些颜色不光用于表格，后期的按钮、表单等需要设置背景颜色的标签都可以使用。状态颜色的样式使用起来非常方便，只需要在原本的样式上添加如下的样式即可，具体代码如下，效果如图6-20所示。
+
+```html
+<table class="table table-bordered table-hover">
+    <thead>
+    <tr class="success">
+        ...
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        ...
+        <td class="warning">江苏江苏江苏</td>
+        ...
+    </tr>
+    </tbody>
+</table>
+```
+
+![table-color](Screenshot/table-color.png)
+
+图6-20 响应式表格的效果
 
 ### 6.3.3 Bootstrap中的表单样式
 
+在页面设计中，表单是经常被使用的组件，用于向服务器提交各类信息。Bootstrap也对表单做了一些标准化的设置和优化，使得表单的样式可以以更加现代的方式进行展示。在Bootstrap中一共提供三种基本的表格类型，分别是默认的表单样式、内联表单的样式和水平表单的样式。同时Bootstrap还对表单中的大部分控件进行优化，例如text、password、datetime等，并且还优化了控件的禁用、只读，以及校验状态的样式，从而为页面中的表单应用提供了统一的模板。
 
+在Bootstrap的表单中，有两个样式非常重要，分别是form-control和form-group，其中form-control表示表单中的控件样式，其核心的就是以块级元素的方式进行显示，即占用整个页面中的一行，并且宽度为100%；而form-group表示表单中一组控件的样式，并且为这组控件添加了15px的底部外边距。。
+
+```css
+.form-control {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+       -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+          transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+```
+
+**1、默认的表单样式：** 所谓默认表单就类似与“Hello World”，通过Bootstrap提供的默认样式使得表单元素看上去更加的美观，具体代码如下：
+
+```html
+<form>
+    <div class="form-group">
+        <label for="email-address">邮件地址</label>
+        <input type="email" class="form-control" id="email-address" placeholder="邮件地址">
+    </div>
+    <div class="form-group">
+        <label for="user-password">密码</label>
+        <input type="password" class="form-control" id="user-password" placeholder="密码">
+    </div>
+    <div class="form-group">
+        <label for="input-file">文件输入</label>
+        <input type="file" id="input-file">
+        <p class="help-block">说明文字</p>
+    </div>
+    <div class="checkbox">
+        <label>
+            <input type="checkbox"> 多选按钮
+        </label>
+    </div>
+    <button type="submit" class="btn btn-default">提交</button>
+</form>
+```
+
+上面的代码并不难理解，但是有三点需要注意的地方。首先，表单中的form-group中的内容并不是固定，更多的是表示逻辑上的分组，即有开发人员自行决定，但它的特点是会在底部添加15px的外边距；其次，除了单选按钮radio、多选按钮checkbox、文件输入file之外，其他控件都需要添加上form-control样式，以便符合Bootstrap的风格；最后，必须为每个表单控件添加标签label，因为不添加label，屏幕阅读器就无法识别并读取对应组件的名称，但是如果业务需求需要隐藏标签，则可以通过在标签label上添加样式src-only的方式来实现。效果如图6-21所示。
+
+![form-normal](Screenshot/form-normal.png)
+
+图6-21 默认表单的样式
+
+**2、内联表单的样式：** 所谓内敛表单就是指表单内的所有元素（包括表单组和表单组内的元素）都在同一行，这样的设置通常放在页面首页中的顶部登陆栏。要实现这个功能，只需要在form标签中添加“form-inline”样式即可。在使用内敛表单时有两点需要注意，首先由于“form-inline”的样式设定置于媒体查询中，并且查询的条件是浏览器宽度大于768px，因此只有当浏览器宽度大于768px时，才能实现水平排列，如果浏览器宽度小于768px，那么表单内原本水平排列的标签（label）和控件（input）又会变为垂直排列；其次，默认情况下表单控件的宽度都为100%，即占用一行，但是在内敛表单中，由于所有表单组件都在一行，因此不能设置100%，而是把width设为auto，因此使得组件水平排列后可能会出现空余的空间，此时开发人员就需要根据需求来确定是否添加一些额外的设置来调整整个表单的宽度，从而填充空余的位置，示例代码如下，效果如图6-22所示。
+
+```html
+<form class="form-inline">
+    <div class="form-group">
+        <label for="email-address">邮件地址</label>
+        <input type="email" class="form-control" id="email-address" placeholder="邮件地址">
+    </div>
+    <div class="form-group">
+        <label for="user-password">密码</label>
+        <input type="password" class="form-control" id="user-password" placeholder="密码">
+    </div>
+    <button type="submit" class="btn btn-default">登陆</button>
+</form>
+```
+
+![form-inline](Screenshot/form-inline.png)
+
+图6-22 内联表单的样式
+
+**3、水平表单的样式：** 所谓水平表单就是指表单组以垂直方式进行排列，而表单组内的元素则以水平方式进行排列。由于form-group样式的行为与栅格系统中row类似，因此可以在不添加row的情况下使用栅格类型（col-md、col-sm等）对水平排列的表单组件进行重新布局。水平表单的实现非常简单，只需要在form标签上添加样式form-horizontal即可，示例代码如下，效果如图6-23所示。
+
+```html
+<form class="form-horizontal">
+    <div class="form-group">
+        <label for="email-address" class="col-sm-2 control-label">邮件地址</label>
+        <div class="col-sm-10">
+            <input type="email" class="form-control" id="email-address" placeholder="邮件地址">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="user-password" class="col-sm-2 control-label">密码</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="user-password" placeholder="密码">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+                <label><input type="checkbox">记住密码</label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default">登陆</button>
+        </div>
+    </div>
+</form>
+```
+
+![form-horizontal](Screenshot/form-horizontal.png)
+
+图6-23 水平表单的样式
+
+**4、静态控件：** 所谓静态控件就是与表单标签label放置在同一行，但是内容不可修改的纯文本，在实际应用中静态控件通常是直接从服务器上获取的数据，用户不能对其进行修改，针对这样的控件，在Bootstrap中通常使用p标签来完成，并在p标签上添加form-control-static样式，示例代码如下，效果如图6-24所示。
+
+```html
+<form class="form-horizontal">
+    <div class="form-group">
+        <label for="email-address" class="col-sm-2 control-label">邮件地址</label>
+        <div class="col-sm-10">
+            <p class="form-control-static" id="email-address">email@example.com</p>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="user-password" class="col-sm-2 control-label">密码</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="user-password" placeholder="密码">
+        </div>
+    </div>
+</form>
+```
+
+![static-control](Screenshot/static-control.png)
+
+图6-24 静态控件的样式
+
+**5、无图标的校验状态：** 在做表单应用时，经常需要表单能够反馈提供的信息是否正确。针对这个应用，Bootstrap提供了三种表单状态，分别是error（错误）、warning（警告）和success（成功），只需要通过在form-group中添加相应的.has-warning、.has-error或.has-success样式类，就可以使form-group中所包含的表单控件都受到校验状态的影响。示例代码如下，效果如图6-25所示。
+
+```html
+<form class="form-horizontal">
+    <div class="form-group has-error">
+        <label for="user-name" class="col-sm-2 control-label">用户名</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="user-name" placeholder="用户名">
+        </div>
+    </div>
+    <div class="form-group has-success">
+        <label for="email-address" class="col-sm-2 control-label">邮件地址</label>
+        <div class="col-sm-10">
+            <input type="email" class="form-control" id="email-address" placeholder="邮件地址">
+        </div>
+    </div>
+    <div class="form-group has-warning">
+        <label for="user-password" class="col-sm-2 control-label">密码</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="user-password" placeholder="密码">
+        </div>
+    </div>
+</form>
+```
+
+![no-icon-checked](Screenshot/no-icon-checked.png)
+
+图6-25 无图标的表单验证
+
+**6、带图标的校验状态：** 为了表单能够提供更好的反馈信息，Bootstrap还提供了带图标的表单验证，只需要通过在form-group中添加样式has-feedback，并且在input控件后添加图标标签span，同时在图标标签span中添加图标样式和表单反馈样式（form-control-feedback）。这里需要注意的是反馈图标只能应用于文本输入框，即\<input type="text" class="form-control"\>，此外Bootstrap中使用的图标是Glyphicons字体图标，该图标并不是使用图片来绘制，而是使用CSS进行绘制，因此速度更快、耗费的资源更少。示例代码如下，效果如图6-26所示。
+
+```html
+<form class="form-horizontal">
+    <div class="form-group has-error has-feedback">
+        <label for="user-name" class="col-sm-2 control-label">用户名</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="user-name" placeholder="用户名">
+            <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+        </div>
+    </div>
+    <div class="form-group has-success has-feedback">
+        <label for="email-address" class="col-sm-2 control-label">邮件地址</label>
+        <div class="col-sm-10">
+            <input type="email" class="form-control" id="email-address" placeholder="邮件地址">
+            <span class="glyphicon glyphicon-ok form-control-feedback"></span>
+        </div>
+    </div>
+    <div class="form-group has-warning has-feedback">
+        <label for="user-password" class="col-sm-2 control-label">密码</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="user-password" placeholder="密码">
+            <span class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+        </div>
+    </div>
+</form>
+```
+
+![icon-checked](Screenshot/icon-checked.png)
+
+图6-26 带图标的表单验证
 
 ### 6.3.4 Bootstrap中的按钮样式
 
+按钮是页面中频繁被使用的组件，在Bootstrap中\<a\>、\<button\>和\<input\>这三个标签都可以通过添加相应的样式绘制成按钮，但是在使用时还有一些主要注意的问题。首先，在导航栏中只支持button标签的按钮，而a和input标签都不能用于导航栏；其次，如果使用a标签作为按钮时，那么必须为a标签添加role="button"属性；最后，在使用按钮的地方尽量使用button标签作为绘制按钮的首选，因为在不同浏览器上使用a标签或input标签绘制按钮时会存在差异，使得效果不尽相同。
 
+**1、默认的按钮：** 要在Bootstrap中实现按钮效果，只需要在\<a\>、\<button\>和\<input\>中添加样式btn，即可把标签声明为按钮，这是所有按钮的基础，其他样式的按钮都是在该样式上进行添加，例如想添加默认的样式，那么在btn样式旁边再添加一个btn-default样式，示例代码如下，效果如图6-27所示。
+
+```html
+<a class="btn btn-default" href="#" role="button">超链接按钮</a>
+<button class="btn btn-default" type="submit">普通按钮</button>
+<input class="btn btn-default" type="button" value="Input按钮">
+<input class="btn btn-default" type="submit" value="Submit按钮">
+```
+
+![btn-normal](Screenshot/btn-normal.png)
+
+图6-27 默认按钮
+
+**2、预定义样式的按钮：** 除了默认样式之外，Bootstrap还是提供了七种预定义的样式使得按钮能够在视觉上提供更好的表达，这七种预定义分别是默认样式（btn-default）、首选样式（btn-primary）、成功样式（btn-success）、一般信息样式（btn-info）、警告信息样式（btn-warning）、错误样式（btn-danger）、链接样式（btn-link），示例代码如下，效果如图6-28所示。
+
+```html
+<button type="button" class="btn btn-default">（默认样式）Default</button>
+<button type="button" class="btn btn-primary">（首选项）Primary</button>
+<button type="button" class="btn btn-success">（成功）Success</button>
+<button type="button" class="btn btn-info">（一般信息）Info</button>
+<button type="button" class="btn btn-warning">（警告）Warning</button>
+<button type="button" class="btn btn-danger">（危险）Danger</button>
+<button type="button" class="btn btn-link">（链接）Link</button>
+```
+
+![btn-style](Screenshot/btn-style.png)
+
+图6-28 预定义样式按钮
+
+**3、控制按钮尺寸：** 在Bootstrap中，为按钮提供了三种不同尺寸的样式，分别是大尺寸按钮（btn-lg）、小尺寸按钮（btn-sm），以及超小尺寸按钮（btn-xs）。此外，Bootstrap还提供了一个占用一行的块级按钮（block-btn），该按钮的宽度为100%，示例代码如下，效果如图6-29所示。
+
+```html
+<div>
+    <button type="button" class="btn btn-default btn-lg">大尺寸按钮</button>
+    <button type="button" class="btn btn-default">默认尺寸按钮</button>
+    <button type="button" class="btn btn-default btn-sm">小尺寸按钮</button>
+    <button type="button" class="btn btn-default btn-xs">超小尺寸按钮</button>
+</div>
+<div>
+    <button type="button" class="btn btn-default btn-lg btn-block">块级按钮</button>
+</div>
+```
+
+![btn-size](Screenshot/btn-size.png)
+
+图6-29 预定义样式按钮
 
 ### 6.3.5 Bootstrap中的图片样式
 
+图片应用也是Web开发中经常用到的组件，在Bootstrap中通过添加响应式的图片样式img-responsive可以实现图片的自动缩放，其本质是为图片设置了属性的最大宽度为100%、高度为auto，并且显示方式为block，同时Bootstrap还提供了三种样式实现圆形图片（img-rounded）、方形图片（img-circle），以及方形带边框的图片（img-thumbnail），示例代码如下，效果如图6-30所示。
 
+```html
+<img src="..." alt="..." class="img-responsive img-rounded">
+<img src="..." alt="..." class="img-responsive img-circle">
+<img src="..." alt="..." class="img-responsive img-thumbnail">
+```
+
+![img-responsive](Screenshot/img-responsive.png)
+
+图6-30 响应式的图片
+
+### 6.3.6 Bootstrap中的辅助样式
+
+**1、快速浮动：** 在Bootstrap中可以通过添加pull-left和pull-right样式来实现任意元素的左浮动和右浮动，并且在这两个样式中都使用!important来提高样式的优先级，但需要注意的是快速浮动的样式不能用于导航栏的设置，示例代码如下。
+
+```html
+<div class="pull-left">...</div>
+<div class="pull-right">...</div>
+```
+
+**2、块居中：** 当需要把一个块级元素居中或把一个元素变为块级元素后实现居中，在Bootstrap中可以通过center-block样式来实现，示例代码如下。
+
+```html
+<div class="center-block">...</div>
+```
+
+**3、元素的隐藏和显示：** 在Bootstrap中可以通过show和hidden样式来实现元素的显示和隐藏。
+
+```html
+<div class="show">...</div>
+<div class="hidden">...</div>
+```
+
+**4、响应式工具：** 为了配合移动端的应用开发，Bootstrap还提供了一套利用媒体查询实现的响应式的隐藏和显示样式，以及响应式的块级元素、内联元素，以及内联块级元素的样式，如表6-4、6-5所示。
+
+表6-4 响应式的隐藏和显示样式（*表示block、inline、inline-block中的一个）
+
+| 项目名称/屏幕 | 超小屏幕设备（<768px） | 超小屏幕设备（>=768px） | 中等屏幕设备（>=992px） | 大屏幕设备（>=1200px） |
+| :- | :-: | :-: | :-: | :-: |
+| .visible-xs-* | 可见 | 隐藏 | 隐藏 | 隐藏 |
+| .visible-sm-* | 隐藏 | 可见 | 隐藏 | 隐藏 |
+| .visible-md-* | 隐藏 | 隐藏 | 可见 | 隐藏 |
+| .visible-lg-* | 隐藏 | 隐藏 | 隐藏 | 可见 |
+| .hidden-xs | 隐藏 | 可见 | 可见 | 可见 |
+| .hidden-sm | 可见 | 隐藏 | 可见 | 可见 |
+| .hidden-md | 可见 | 可见 | 隐藏 | 可见 |
+| .hidden-lg | 可见 | 可见 | 可见 | 隐藏 |
+
+表6-5 响应式的元素显示方式（*表示xs、sm、md、lg中的一个）
+
+| 类组 | CSS |
+| :- | :-: |
+| .visible-*-block | display: block; |
+| .visible-*-inline | display: inline; |
+| .visible-*-inline-block | display: inline-block; |
 
 ## 6.4 响应式的导航栏与常用组件的应用
 
