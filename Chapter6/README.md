@@ -1105,6 +1105,732 @@ Bootstrap中对栅格系统做了进一步的完善和改进，并且把网页�
 
 ## 6.4 响应式的导航栏与常用组件的应用
 
+在上一节中讲了Bootstrap中的栅格系统的使用和基本UI组件样式的设置，以及常用的一些辅助样式，通过这些内容的使用可以构建一个最基本页面。除此之外，Bootstrap还提供了一套完善的UI组件，可以帮助开发人员快速构建响应式的现代页面，本节将以这些UI组件为立足点讲述Bootstrap中常用UI组件的使用方法和技术细节。
+
+### 6.4.1 Bootstrap中的字体图标
+
+在字体图标出现之前，Web中的图标都是采用制作Sprite图片来完成，即在一张较大的图片上按照一定规律放上若干个小图片，当页面被访问时开发人员需要知道图标的大小和图标在Sprite图片上的位置，然后通过CSS调整img标签的的大小和位置来实现图标的显示。由于Sprite图片包含了许多小图片，因此需要严格控制Sprite图片大小，从而降低对带宽的要求，这就势必会造成Sprite图片中小图标的尺寸较小，使得在移动终端或者Web上会出现模糊的问题。虽然采用矢量图能好的解决这个问题，但是Android系统还不能完全支持矢量图，因此字体图标就成为目前最好的图标解决方案。此外，相较于图片图标，字体图标还有四点优势，分别是：
+
+**1、清晰度高：** 字体图标其本质就是字体，因此当对图标进行放大、缩小时都能提供非常好的清晰度。
+
+**2、体积小：** 字体图标通常都比图片要小的多，并且一旦字体图标浏览器加载就会马上渲染出来，而不需要通过HTTP请求来下载一个图片。
+
+**3、灵活性高：** 图标字体的使用非常灵活，只需要通过font、color等CSS属性就可以调节图标的大小、样式、颜色等效果。
+
+**4、兼容性强：** 目前所有的现代浏览器都支持字体图标，更具有通用性。
+
+在Bootstrap中采用了Glyphicon Halflings免费提供的200多个字体图标，如图6-31所示。从图中可以看出每个字体图标都有两个名称，分别是glyphicon和glyphicon-*，即用于显示图标的样式名称。要显示图标非常简单只需要通过标签span即可，具体代码如下：
+
+```html
+<span class="glyphicon glyphicon-asterisk"></span>
+```
+
+![font-icon](Screenshot/font-icon.png)
+
+图6-31 字体图标
+
+从上面可以看出字体图标的使用非常简单，但是在使用时还有两个注意点需要注意。首先，由于图标样式只能应用在没有任何内容的标签上，因此在span标签内不能包含任何的内容，如果有组件需要包含图标，那么需要嵌套一个空的span标签，并且把图标样式应用到该span标签上即可；其次，如果需要把图标和文字进行混排时，例如下面的代码，表示的是带图标的按钮，就需要在图标和文本之间添加一个空格，才能让Bootstrap更好的设置包含图标的组件内边距，示例代码如下：
+
+```html
+<button type="button" class="btn btn-default btn-lg">
+  <span class="glyphicon glyphicon-star" aria-hidden="true"></span> 开始
+</button>
+```
+
+### 6.4.2 下拉菜单的绘制与事件处理
+
+下拉菜单是构建Web页面中经常要使用的UI组件，也是顶部菜单或者导航条的重要组成部分，如果要从头开始绘制一个下拉菜单，并且添加相应的处理事件函数还是比较困难的，而在Bootstrap中已经集成了绘制下拉菜单所需的样式和响应下拉菜单打开和关闭事件函数，开发人员只需要添加相应的HTML代码，以及CSS样式即可实现下拉菜单的绘制，下面就给出下拉菜单绘制的标准代码，示例代码如下，效果如图6-32所示：
+
+```html
+<div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+        擅长的运动 <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li class="dropdown-header">大球运动</li>
+        <li><a href="#">足球</a></li>
+        <li class="disabled"><a href="#">篮球</a></li>
+        <li><a href="#">排球</a></li>
+        <li role="separator" class="divider"></li>
+        <li class="dropdown-header">小球运动</li>
+        <li><a href="#">羽毛球</a></li>
+        <li><a href="#">乒乓球</a></li>
+    </ul>
+</div>
+```
+
+![dropdown-menu](Screenshot/dropdown-menu.png)
+
+图6-32 下拉菜单的效果
+
+**第1行代码：** 由于下拉菜单的绘制必须至于dropdown样式或者已经声明position: relative的元素中，因此要绘制下拉菜单首先就需要添加一个div标签，并为该div添加样式dropdown，如果要绘制上拉菜单，那么div的样式需要改为dropup，然后把下拉菜单的主体部分至于其中。
+
+**第2行代码：** 绘制下拉菜单的按钮，这里需要注意的是由于Bootstrap已经为Button绑定了data-toggle属性，因此要实现拉下菜单就必须为Button添加属性data-toggle="dropdown"。此外，如果想要修改下拉菜单的大小，那么只需要在button中在添加样式btn-lg、btn-sm和btn-xs即可。
+
+**第3行代码：** 添加Button的文字，并使用Bootstrap的辅助类caret实现下拉菜单的三角符号。
+
+**第5-14行代码：** 通过在ul标签中添加dropdown-menu样式，从而完整的实现下拉菜单的内容。
+
+**第6行代码：** 通过在li标签中添加dropdown-header样式，实现下拉菜单的标题，该标题用户不能选择，而是起到分组的作用，需要注意的是下拉菜单的标题内不要添加a标签，只需要填入标题的文字即可。
+
+**第8行代码：** 要禁用下拉菜单中的某一行，只需要在所在li标签中添加样式disabled。
+
+**第10行代码：** 通过在li标签中添加divider样式，从而实现下拉菜单的分隔线。
+
+绘制完下拉菜单，接下来就是与下拉菜单之间的交互。在Bootstrap中为下拉菜单提供一个函数和四个事件，分别是下拉菜单展开函数、下拉菜单即将展开的事件、下拉菜单已经展开的事件、下拉菜单即将关闭的事件，以及下来菜单已经关闭的事件。
+
+**1、拉菜单展开函数：** 该函数的原型为$("下拉菜单按钮的选择器").dropdown('toggle')，需要注意的是Bootstrap中的下拉菜单不能通过代码的方式进行打开和关闭。该函数的主要目的是对下拉菜单的起始状态进行初始化，即如果当页面加载完毕后调用该函数，那么下拉菜单的起始状态为展开状态，如果不调用该函数，那么下拉菜单的起始状态就为关闭状态。
+
+**2、下拉菜单即将展开的事件：** 该事件的原型为$("下拉菜单的选择器").on('show.bs.dropdown',function(){...})，其中“下拉菜单的选择器”表示下拉菜单最外层的DIV，而“show.bs.dropdown”则是Bootstrap定义的下拉菜单即将展开的事件名称，具体代码如下：
+
+```javascript
+$('.dropdown').on('show.bs.dropdown',function(){
+    console.log('下拉菜单即将张开');
+});
+```
+
+**3、下拉菜单已经展开的事件：** 该事件的原型为$("下拉菜单的选择器").on('shown.bs.dropdown',function(){...})，其中“下拉菜单的选择器”表示下拉菜单最外层的DIV，而“shown.bs.dropdown”则是Bootstrap定义的下拉菜单已经展开的事件名称，具体代码如下：
+
+```javascript
+$('.dropdown').on('shown.bs.dropdown',function(){
+    console.log('下拉菜单已经张开');
+});
+```
+
+**4、下拉菜单即将关闭的事件：** 该事件的原型为$("下拉菜单的选择器").on('hide.bs.dropdown',function(){...})，其中“下拉菜单的选择器”表示下拉菜单最外层的DIV，而“hide.bs.dropdown”则是Bootstrap定义的下拉菜单即将关闭的事件名称，具体代码如下：
+
+```javascript
+$('.dropdown').on('hide.bs.dropdown',function(){
+    console.log('下拉菜单即将关闭');
+});
+```
+
+**5、下来菜单已经关闭的事件：** 该事件的原型为$("下拉菜单的选择器").on('hidden.bs.dropdown',function(){...})，其中“下拉菜单的选择器”表示下拉菜单最外层的DIV，而“hidden.bs.dropdown”则是Bootstrap定义的下来菜单已经关闭的事件名称，具体代码如下：
+
+```javascript
+$('.dropdown').on('hidden.bs.dropdown',function(){
+    console.log('下拉菜单已经关闭');
+});
+```
+
+### 6.4.3 按钮组的绘制与事件处理
+
+所谓按钮组，就是把一组按钮放在同一行，类似与PC软件中的工具栏。如果按钮组再与单选按钮或者多选按钮相结合就可以实现更加丰富的功能。
+
+**1、基础按钮组：** 要实现一个最基本的按钮组，其核心的样式为btn-group，只需要把一组button嵌套在具有btn-group样式的div中即可。此外，默认情况下，按钮组的排列方式为水平排列，如果需要垂直排列的按钮组，那么就需要把btn-group样式修改为btn-group-vertical样式，示例代码如下，效果如图6-33所示：
+
+```html
+<div class="btn-group（或btn-group-vertical）" role="group">
+  <button type="button" class="btn btn-default">打开</button>
+  <button type="button" class="btn btn-default">关闭</button>
+  <button type="button" class="btn btn-default">重置</button>
+</div>
+```
+
+![btn-group-base](Screenshot/btn-group-base.png)
+
+图6-33 基础样式的按钮组
+
+**2、工具栏按钮：** 所谓工具栏按钮，就是把多个按钮组组合起来，即把多个按钮组嵌套在具有btn-toolbar样式的div中，同时还可以在btn-group样式上添加btn-group-xs/sm/lg来调整按钮组的大小，示例代码如下，效果如图6-34所示：
+
+```html
+<div class="btn-toolbar">
+    <div class="btn-group btn-group-lg" role="group">
+        <button type="button" class="btn btn-default">打开</button>
+        <button type="button" class="btn btn-default">关闭</button>
+        <button type="button" class="btn btn-default">重置</button>
+    </div>
+    <div class="btn-group btn-group-xs" role="group">
+        <button type="button" class="btn btn-default">复制</button>
+        <button type="button" class="btn btn-default">黏贴</button>
+        <button type="button" class="btn btn-default">剪切</button>
+    </div>
+</div>
+```
+
+![btn-group-toolbar](Screenshot/btn-group-toolbar.png)
+
+图6-34 工具栏的按钮组
+
+**3、具有下拉菜单的工具栏按钮：** 所谓具有下拉菜单的工具栏按钮，就是把下拉菜单与按钮组进行组合，其方法是在按钮组中添加完整的下拉菜单代码，但要注意的是要把原本样式为dropdown的div修改为btn-group样式，示例代码如下，效果如图6-35所示：
+
+```html
+<div class="btn-group" role="group">
+  <button type="button" class="btn btn-default">打开</button>
+  <button type="button" class="btn btn-default">关闭</button>
+  <button type="button" class="btn btn-default">重置</button>
+
+  <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default">打开</button>
+        <button type="button" class="btn btn-default">关闭</button>
+        <button type="button" class="btn btn-default">重置</button>
+
+        <div class="btn-group">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                擅长的运动 <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li class="dropdown-header">大球运动</li>
+                <li><a href="#">足球</a></li>
+                <li class="disabled"><a href="#">篮球</a></li>
+                <li><a href="#">排球</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">小球运动</li>
+                <li><a href="#">羽毛球</a></li>
+                <li><a href="#">乒乓球</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+```
+
+![btn-group-dropdown](Screenshot/btn-group-dropdown.png)
+
+图6-35 具有下拉菜单的按钮组
+
+**4、等分按钮的按钮组：** 所谓等分按钮的按钮组，就是让一组按钮等于所在栅格的宽度，并且其中的按钮的大小都相同，由于a标签和button标签都可以作为按钮使用，但是因为其显示方式和能够支持的CSS不同，因此要绘制等分按钮组时，a标签和button标签的绘制方式不同。a标签的等分按钮组只需要在btn-group中增加btn-group-justified样式即可，而button标签的等分按钮组除了要加btn-group-justified样式外，还需要每个按钮嵌套在一个btn-group中，示例代码如下，效果如图6-36所示：
+
+```html
+<!--a标签的等分按钮组-->
+<div class="btn-group btn-group-justified">
+    <a class="btn btn-default">打开</a>
+    <a class="btn btn-default">关闭</a>
+    <a class="btn btn-default">重置</a>
+</div>
+
+<!--button标签的等分按钮组-->
+<div class="btn-group btn-group-justified">
+    <div class="btn-group">
+        <button type="button" class="btn btn-default">打开</button>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-default">关闭</button>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-default">重置</button>
+    </div>
+</div>
+```
+
+![btn-group-justified](Screenshot/btn-group-justified.png)
+
+图6-36 等分按钮组
+
+**5、单选/多选按钮组：** 所谓单选/多选按钮组，就是把一组单选/多选按钮组成一个按钮组。由于默认情况下，单选/多选按钮有其自身的样式，并且通过简单的CSS无法修改其样式，因此在Bootstrap中就需要借助JavaScript代码才能实现和按钮组的融合，目前这部分已经由Bootstrap完成，开发人员只需要在绘制按钮组的同时在btn-group所在的div中添加data-toggle="buttons"属性即可。需要注意的是，有单选/多选按钮是表单的一部分，因此需要把单选/多选按钮置于label标签中，并为label标签添加按钮相关的样式，如btn、btn-default等，示例代码如下，效果如图6-37所示：
+
+```html
+<div class="btn-group" data-toggle="buttons">
+    <label class="btn btn-default">
+        <input type="radio" name="sport"> 足球
+    </label>
+    <label class="btn btn-default">
+        <input type="radio" name="sport"> 篮球
+    </label>
+    <label class="btn btn-default">
+        <input type="radio" name="sport"> 排球
+    </label>
+</div>
+
+<div class="btn-group" data-toggle="buttons">
+    <label class="btn btn-default">
+        <input type="checkbox" name="fruit" checked> 橘子
+    </label>
+    <label class="btn btn-default">
+        <input type="checkbox" name="fruit"> 苹果
+    </label>
+    <label class="btn btn-default">
+        <input type="checkbox" name="fruit"> 香梨
+    </label>
+</div>
+```
+
+![btn-group-radio-checkbox](Screenshot/btn-group-radio-checkbox.png)
+
+图6-37 单选/多选按钮组
+
+**6、分裂式按钮下拉菜单：** 所谓分裂式按钮下拉菜单，就是把一个下拉菜单与一个按钮进行组成，从而形成一个整体，其方法是在一个按钮组中添加一个完整的按钮和下拉列表。但是需要注意的是，下拉列表中的按钮不能携带文字，但需要添加一个向上或向下的三角符号，同时不需要在下拉列表外再嵌套一个带dropdown样式的div，而是以带btn-group样式div包裹即可。如果此时想把下拉菜单改为向上弹出，那么就需要在btn-group中添加dropup样式即可，示例代码如下，效果如图6-38所示：
+
+```html
+<div class="btn-group">
+    <button type="button" class="btn btn-default">字体</button>
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li><a href="#">红色</a></li>
+        <li><a href="#">蓝色</a></li>
+        <li><a href="#">绿色</a></li>
+    </ul>
+</div>
+```
+
+![btn-group-split-dropdown](Screenshot/btn-group-split-dropdown.png)
+
+图6-38 分裂式按钮下拉菜单
+
+### 6.4.4 输入框组的绘制与事件处理
+
+在表单中，文本输入框是最为常用的组件，样式也比较单一，没有办法提供较好的视觉效果，以及明确传达设计者的意图。但Bootstrap却对文本框输入框进行的改造，通过在输入框的前、后两边加上文字、按钮、下拉菜单等内容使得文本输入框具有了更加丰富的展示效果，从而形成输入框组。输入框组中最核心的是input-group-addon和input-group-btn这两个样式，前者主要用于在输入框前后添加文字，而input-group-btn则主要用在输入框前后添加按钮。此外，在应用是需要注意的是，Bootstrap中输入框组只支持文本输入框，并且在文本输入框的左、右两边只能各添加一个input-group-addon或者input-group-btn元素，不支持多个元素，但是在这两个元素中可以添加多个子标签，以实现多个文字或多个按钮的效果。
+
+**1、文本类型的输入框组：** 要实现最基本的输入框组非常简单，首先创建一个带input-group样式的div，然后在div中创建文本输入框input，最后根据应用的要求，在input标签的前后添加标签span，并且为span添加样式input-group-addon，同时完善span标签中的内容即可。此外，还可以在input-group样式旁边添加input-group-lg或者input-group-sm来修改输入框组的大小，示例代码如下，效果如图6-39所示：
+
+```html
+<form>
+    <div class="form-group">
+        <label for="user-mail">用户邮箱</label>
+        <div class="input-group input-group-lg">
+            <input type="text" class="form-control" id="user-mail" placeholder="邮箱名称">
+            <span class="input-group-addon">@163.com</span>
+        </div>
+    </div>
+</form>
+```
+
+![input-group-text](Screenshot/input-group-text.png)
+
+图6-39 文本类型输入框组
+
+**2、按钮类型的输入框组：** 与文本类型输入框组不同的是，在按钮类型输入框组中原本input-group-addon改为input-group-btn，并且把span标签内的文字改为按钮。如果此时需要添加多个按钮，只需要在包含input-group-btn样式的span标签内添加多个按钮即可，示例代码如下，效果如图6-40所示：
+
+```html
+<form>
+    <div class="form-group">
+        <label for="user-mail">用户邮箱</label>
+        <div class="input-group input-group-lg">
+            <input type="text" class="form-control" id="user-mail" placeholder="邮箱名称">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button">按钮1</button>
+                <button class="btn btn-default" type="button">按钮2</button>
+            </span>
+        </div>
+    </div>
+</form>
+```
+
+![input-group-btn](Screenshot/input-group-btn.png)
+
+图6-40 按钮类型输入框组
+
+**3、下拉菜单或分裂式下来菜单类型的输入框组：** 带下拉菜单或者分裂式下拉菜单的绘制和按钮类型的几乎相同，只是需要把原本存放按钮的span标签改为div即可，并把下拉菜单或者分裂式下拉菜单的内容置于该div标签中即可，而原先带有dropdown样式的div则由带input-group-btn样式的div替代，示例代码如下，效果如图6-41所示：
+
+```html
+<form>
+    <div class="form-group">
+        <label for="user-mail">用户邮箱</label>
+        <div class="input-group input-group-lg">
+            <input type="text" class="form-control" id="user-mail" placeholder="邮箱名称">
+            <div class="input-group-btn">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                    邮箱类型 <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">@163.com</a></li>
+                    <li><a href="#">@sina.com</a></li>
+                    <li><a href="#">@hotmail.com</a></li>
+                    <li><a href="#">@gmail.com</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</form>
+```
+
+![input-group-dropdown](Screenshot/input-group-dropdown.png)
+
+图6-41 下拉菜单类型的输入框组
+
+### 6.4.5 标签页的绘制与事件处理
+
+在页面的设计中，标签页是非常常用的页面组件，可以实现在有限屏幕上更多内容的显示。在Bootstrap中，标签页被重新设计为不需要编写一行JavaScript代码就可以实现标签和标签面板之间的联动。同时，标签页所依赖的组件样式名称页非常简单，即nav。通过nav-pills或者nav-tabs与nav样式的配合，就可以实现胶囊标签和普通标签。
+
+**1、普通标签页和胶囊标签页的绘制：** 标签页的绘制以无序列表ul为基础，依赖核心样式nav，当在ul标签上添加nav样式，并与nav-pills样式结合就实现了胶囊式的标签页，而与nav-tabs样式结合则可实现普通的标签页。此外，如果要让标签页两端对齐，即填满页面的撑满，并且每页的大小都等分，那么就需要在ul标签样式的基础上添加nav-justified样式。如果还需要激活某个标签，那么只需要在对应的li标签上添加样式active即可，而如果要禁用某个标签，则在对应的li标签上添加样式disabled即可。示例代码如下，效果如图6-42所示：
+
+```html
+<!-- 普通标签页 -->
+<ul class="nav nav-tabs nav-justified">
+    <li><a href="#">普通标签页1</a></li>
+    <li class="active"><a href="#">普通标签页2</a></li>
+    <li><a href="#">普通标签页3</a></li>
+</ul>
+
+<!-- 胶囊标签页 -->
+<ul class="nav nav-pills nav-justified">
+    <li class="active"><a href="#">胶囊标签页1</a></li>
+    <li><a href="#">胶囊标签页2</a></li>
+    <li class="disabled"><a href="#">胶囊标签页3</a></li>
+</ul>
+```
+
+![nav-tabs](Screenshot/nav-tabs.png)
+
+图6-42 基本标签页的绘制
+
+**2、带下拉菜单的标签页绘制：** 带下拉菜单的标签页与普通标签页的区别在于，首先原本置于div中的dropdown样式需要置于下拉菜单所在的li标签中。其次，原本用于作下拉列表按钮的button标签需要改为使用a标签构建的按钮，并且删除btn和btn-*的按钮样式，其他内容保持不变，示例代码如下，效果如图6-43所示：
+
+```html
+<ul class="nav nav-tabs">
+    <li><a href="#">胶囊标签页1</a></li>
+    <li><a href="#">胶囊标签页2</a></li>
+    <li class="dropdown active">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" >
+            邮箱类型 <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="#">@163.com</a></li>
+            <li><a href="#">@sina.com</a></li>
+            <li><a href="#">@hotmail.com</a></li>
+            <li><a href="#">@gmail.com</a></li>
+        </ul>
+    </li>
+</ul>
+```
+
+![nav-tabs-dropdown](Screenshot/nav-tabs-dropdown.png)
+
+图6-43 带下拉菜单的标签页
+
+编写完上面的代码并执行，读者就会发现实际上这些标签页都无法实现切换的效果，而是为哪个li添加了active样式，那么这个li标签所对应的标签页就会被选中。这是因为在Bootstrap中需要使用标签页切换函数$("标签页选择器").tab('show')才能实现标签的切换。此外需要注意的是，由于在标签页中标签的绘制是使用a标签来实现，而标签页的切换需要为a标签添加点击事件，但如果此时a标签的href的值为“#”，那么当点击标签页时JQuery就会抛出异常。因此，为了解决这个问题，需要把href的值改为javascript:void(0)，示例代码如下。
+
+*HTML代码：*
+
+```html
+<ul class="nav nav-tabs" id="my-tabs">
+    <li><a href="javascript:void(0)">胶囊标签页1</a></li>
+    <li><a href="javascript:void(0)">胶囊标签页2</a></li>
+    <li class="dropdown active">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" >
+            邮箱类型 <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="javascript:void(0)">@163.com</a></li>
+            <li><a href="javascript:void(0)">@sina.com</a></li>
+            <li><a href="javascript:void(0)">@hotmail.com</a></li>
+            <li><a href="javascript:void(0)">@gmail.com</a></li>
+        </ul>
+    </li>
+</ul>
+```
+
+*JavaScript代码：*
+
+```javascript
+$(document).ready(function () {
+    $('#my-tabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    })
+});
+```
+
+在上面的HTML代码中，为每个a标签的href值添加javascript:void(0)，以解决href值为#的问题。在JavaScript代码中，通过JQuery的选择器选择标签页中的a标签，并为a标签添加点击事件，在点击事件的处理函数中，首先添加e.preventDefault()函数，以阻止JQuery的事件冒泡，然后调用Bootstrap中的标签页函数$().tab('show')以切换到当前点击的标签页。
+
+通过上面的代码可以非常简单的实现标签页切换，但是标签页最重要的作用是对内容进行切换，要实现这样的效果并不容易，不过Bootstrap已经为开发人员提供了一个很好的解决方案，并且不添加一行JavaScript代码，具体步骤如下：
+
+**1、添加标签页面板容器：** 在标签页的下方添加一个div标签，并且为这个div标签添加一个tab-content样式，该标签就是标签页面板的容器。
+
+**2、在容器中添加标签页面板：** 在标签页面板容器中添加若干个div标签，其数量要和标签的数量相同，然后为div标签添加样式tab-pane，以此来表示这是一个标签页面板，如果需要有淡入淡出的效果，那么还需要添加样式fade和in。随后在该div中添加一个唯一的id，该id的作用是用于与指定标签进行绑定。最后为默认打开的标签页div添加active样式。
+
+**3、绑定标签页的ID：** 修改每个标签页a标签的href值，该值为标签页面板的id值，格式为“#ID值”。需要注意的是，如果标签页中有下拉列表，那么下拉列表按钮的href不需要设置为标签页面板ID，而是保持javascript:void(0)即可。
+
+**3、添加标签页触发事件：** 在每个标签页的a标签中添加标签页的事件触发，即添加data-toggle="tab"，完成后当用户点击标签页时，Bootstrap就会执行其内部代码来实现页面的切换。
+
+示例代码如下，效果如图6-44所示：
+
+```html
+<ul class="nav nav-tabs" id="my-tabs">
+    <li class="active"><a href="#home" data-toggle="tab">主页</a></li>
+    <li><a href="#mobile" data-toggle="tab">移动终端</a></li>
+    <li class="dropdown">
+        <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" >
+            移动操作系统 <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="#android" data-toggle="tab">Android</a></li>
+            <li><a href="#ios" data-toggle="tab">IOS</a></li>
+            <li><a href="#wp" data-toggle="tab">WindowsPhone</a></li>
+        </ul>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane fade in active" id="home">
+        <p>主页的内容</p>
+    </div>
+    <div class="tab-pane fade in" id="mobile">
+        <p>移动终端的内容</p>
+    </div>
+    <div class="tab-pane fade in" id="android">
+        <p>Android操作系统</p>
+    </div>
+    <div class="tab-pane fade in" id="ios">
+        <p>IOS操作系统</p>
+    </div>
+    <div class="tab-pane fade in" id="wp">
+        <p>WindowsPhone操作系统</p>
+    </div>
+</div>
+```
+
+![nav-tabs-selected](Screenshot/nav-tabs-selected.png)
+
+图6-44 实现下拉菜单的切换
+
+### 6.4.6 顶部导航栏的绘制与事件处理
+
+顶部导航栏是Bootstrap提供的一个非常重要的功能，也是以Bootstrap构建网站时一个很明显的特色。因为Bootstrap是一个移动优先的框架，因此顶部导航栏不仅能在PC上正常显示，而且还能在浏览器宽度变窄到一定阈值时，通过折叠的方式显示在移动端，如果再和响应式的按钮结合，那么在移动端所呈现出的效果就是顶部弹出菜单。Bootstrap中的导航栏主要有三部分构成，首先是网站的图标或者网站的名称，然后是以链接形式为主的网站导航按钮，最后是以表单形式存在的内容，如用户登录等。
+
+为了提供更好的语义特征，Bootstrap的顶部导航栏必须定义为nav标签，并且在nav标签中添加导航栏的核心样式navbar，其功能类似于绘制按钮时添加的btn样式，主要用于构建导航栏最基本的样式，然后再添加导航栏的主题样式，Bootstrap默认提供的主题有两种，一种是以灰色为主色调的样式navbar-default，另外一种则是以黑色为主色调的样式navbar-inverse，如图6-45所示。
+
+![bootstrap-navbar](Screenshot/bootstrap-navbar.png)
+
+图6-45 Bootstrap中导航栏的样式
+
+**1、构建最简导航栏：** 导航栏的构建与页面内容构建时最大的不同在于，构建页面内容是需要把页面中的所有内容都置于一个具有container或者container-fluid样式的div容器中，但是导航栏的内容则独立于该容器，并以nav标签作为其父标签，作为body标签的直接子标签。此外，由于导航栏的宽度都通常占用一整行，因此在nav标签下需要添加一个div容器，并且该容器的样式为container或者container-fluid，此时就已经完成了导航栏的基本架构。接下来就是填充内容，导航栏中最核心的就是以链接形式存在的一系列导航按钮，该导航按钮的绘制绘制与标签页的构建方法极为类似，都是是ul标签为基础进行绘制。唯一的区别在于，绘制标签页时ul标签的样式为nav和nav-tabs，而绘制导航栏时ul标签的样式为nav和navbar-nav，示例代码如下，效果如图6-46所示：
+
+```html
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <ul class="nav navbar-nav">
+                <li><a href="javascript:void(0)">主页</a></li>
+                <li><a href="javascript:void(0)">公司业务</a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" >
+                        移动操作系统 <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="javascript:void(0)" data-toggle="tab">Android</a></li>
+                        <li><a href="javascript:void(0)" data-toggle="tab">IOS</a></li>
+                        <li><a href="javascript:void(0)" data-toggle="tab">WindowsPhone</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</body>
+```
+
+![navbar-base](Screenshot/navbar-base.png)
+
+图6-46 最简导航栏的样式
+
+**2、构建带品牌标记的导航栏：** 通常在一个页面的导航栏中都需要添加一个公司Logo或者公司名称。而在Bootstrap中要完成这个功能，那么就需要在导航栏的容器container-fluid或者container中添加一个具有navbar-header样式的div标签，并且在该标签中添加一个链接到公司主页的a标签，同时为该标签增加品牌样式navbar-brand。如果a标签中只存放文字，那么该导航栏中的品牌标记则以文字形式展现，如果再在a标签中添加img标签，那么该导航栏中的品牌标记则以图片形式展现，示例代码如下，效果如图6-47所示：
+
+```html
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">品牌名称</a>
+            <!-- 以图片形式展示品牌标记 -->
+            <!--<a class="navbar-brand" href="#">-->
+                <!--<img src="./static/img/logo.png">-->
+            <!--</a>-->
+        </div>
+
+        <ul class="nav navbar-nav">
+            <li><a href="javascript:void(0)">主页</a></li>
+            <li><a href="javascript:void(0)">公司业务</a></li>
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" >
+                    移动操作系统 <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="javascript:void(0)" data-toggle="tab">Android</a></li>
+                    <li><a href="javascript:void(0)" data-toggle="tab">IOS</a></li>
+                    <li><a href="javascript:void(0)" data-toggle="tab">WindowsPhone</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+```
+
+![navbar-brand](Screenshot/navbar-brand.png)
+
+图6-47 带品牌标记的导航栏
+
+**3、构建带表单的导航栏：** 目前在许多现代的网页上，导航栏已经不仅仅是起到导航的作用，而是还集成了如账户登录、搜索等提交的功能，这些功能的实现都依赖表单的设置。在Bootstrap中，要在导航栏中实现表单的方法与实现普通表单没有太大的差异，唯一的不同就是要在form标签上添加样式navbar-form。需要注意的是，很多时候在导航栏中的表单不需要显示label标签，但是在构建表单代码时为了使程序更具语义，还是应该为input标签添加上该标签，并通过为label标签设置sr-only样式来隐藏文字。此外，由于默认情况下，导航栏中的组件都是左对齐，而如果要调整导航栏中某一个或者某几个组件的位置，那么只需要在对应的组件上添加navbar-left或者navbar-right样式即可，示例代码如下，效果如图6-48所示：
+
+```html
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        ...
+
+        <form class="navbar-form navbar-right">
+            <div class="form-group">
+                <label for="search-input" class="sr-only">Search Content</label>
+                <input type="text" class="form-control" id="search-input" placeholder="搜索的内容">
+            </div>
+            <button type="submit" class="btn btn-default">搜索</button>
+        </form>
+    </div>
+</nav>
+```
+
+![navbar-form](Screenshot/navbar-form.png)
+
+图6-48 带表单的导航栏
+
+**4、导航栏的位置：** 在Bootstrap中，导航栏的位置有三种，分别是固定在顶部、固定在底部，以及静止在顶部，其样式分别是navbar-fixed-top、navbar-fixed-bottom和navbar-static-top，只需要在nav标签的样式中添加其中一个即可。默认情况下导航栏的位置为静止在顶部，而所谓的固定在顶部或底部，其本质是通过把导航栏的position属性设置为fixed，从而把导航栏固定在浏览器的某个位置，使得浏览器轮动时，导航栏的位置始终不变。需要注意的是，到导航栏设置为固定在顶部或顶部时，需要手动添加body的内边距padding，默认情况下导航栏的高度为50px，因为导航栏设为固定时，其脱离了标准流，后面的标签会填补原先导航栏的位置，示例代码如下。
+
+```html
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        ...
+    </div>
+</nav>
+```
+
+**5、响应式的导航栏：** 在前面的例子中，当浏览器宽度逐渐变小时，会发现所有导航栏组件都以堆叠的方式进行排列，并且占用了很大的空间，如图6-49所示。但是通常的移动端应用碰到类似的情况，应该是把导航栏收起，并在原本的导航栏中添加一个展开按钮，通过点击展开按钮的方式来打开和关闭导航栏组件，要实现这一效果需要添加复杂的代码。但是在Bootstrap中，只需要添加一些简单的样式就可以实现，具体步骤如下：
+
+>* 首先，在具有navbar-header样式的div标签中添加一个按钮，并且为该按钮添加样式navbar-toggle，以及三个按钮图标，用于表示该按钮是一个导航栏的切换按钮，
+>* 其次，为该按钮添加data-toggle="collapse"属性和data-target="#导航栏组件ID"属性，前者用于告诉Bootstrap的JavaScript库该按钮应该具备的行为，后者用于告诉Bootstrap的JavaScript库该按钮的行为所作用于的对象。
+>* 然后，创建一个与具有navbar-header样式的div平行，并具有collapse和navbar-collapse样式的div标签，并且为该标签添加ID。注意该ID必须和按钮中的导航栏组件ID相同。
+>* 最后，把所有导航栏组件置于具有collapse和navbar-collapse样式的div标签内。
+
+通过上面的步骤就可以完成整个响应式导航栏的绘制，示例代码如下，效果如图6-50所示：
+
+```html
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <!-- 添加导航栏按钮 -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+                <!-- 导航栏的三个图标 -->
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="#">
+                <img src="./static/img/logo.png">
+            </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="main-navbar">
+            <ul class="nav navbar-nav">
+                ...
+            </ul>
+
+            <form class="navbar-form navbar-right">
+                ...
+            </form>
+        </div>
+
+    </div>
+</nav>
+```
+
+![navbar-responsive-error](Screenshot/navbar-responsive-error.png)
+
+图6-49 优化前的响应式导航栏
+
+![navbar-responsive](Screenshot/navbar-responsive.png)
+
+图6-50 优化后的响应式导航栏
+
+### 6.4.7 路径导航的绘制与事件处理
+
+在Web页面中，经常会有逐级递进的页面，此时就会用到路径导航，类似于Windows系统中文件浏览系统中的顶部路径栏，用户可以选择父路径中的任意一个，并进行跳转。在Bootstrap中要实现该功能非常简单，只需要创建一个有序列表ol，并为该标签添加breadcrumb样式，同时在列表项li标签中添加相应a标签，以及a标签对应的文字和链接。示例代码如下，效果如图6-51所示：
+
+```html
+<ol class="breadcrumb">
+  <li><a href="#">主页</a></li>
+  <li><a href="#">学院列表</a></li>
+  <li class="active">纳米科技学院</li>
+</ol>
+```
+
+![breadcrumb](Screenshot/breadcrumb.png)
+
+图6-51 路径导航的样式
+
+### 6.4.8 分页导航的绘制与事件处理
+
+在Web页面中，分页是非常重要的组件，当页面展示内容非常多时就可以用分页来完成，不仅能提高页面展示的速度，而且还能提高数据库查询效率。在Bootstrap中提供两种分页导航，一种是带页码的分页导航，另外一种则是不带页码的翻页导航，但是不论是哪种都是以无序列表ul为基础进行构建。
+
+**1、带页码的分页导航：** 由于分页导航也是导航的一种，因此需要使用nav标签作为父标签，然后在nav标签中添加无序列表ul，并且为ul标签添加pagination样式即可，同时，可以通过在li标签中添加pagination-lg或pagination-sm样式来修改分页导航的大小。此外，还可以为分页导航的列表项添加active样式来激活列表项，或者为列表项添加disabled样式来禁用列表项，示例代码如下，效果如图6-52所示：
+
+```html
+<nav>
+    <ul class="pagination">
+        <li class="disabled">
+            <a href="#"><span>&laquo;</span></a>
+        </li>
+        <li class="active"><a href="#">1</a></li>
+        <li><a href="#">2</a></li>
+        <li><a href="#">3</a></li>
+        <li><a href="#">4</a></li>
+        <li><a href="#">5</a></li>
+        <li>
+            <a href="#"><span>&raquo;</span></a>
+        </li>
+    </ul>
+</nav>
+```
+
+![nav_page_number](Screenshot/nav_page_number.png)
+
+图6-52 带页码的分页导航样式
+
+
+**2、带翻页的分页导航：** 翻页的分页导航与带页码的分页导航相似，区别在于ul标签的样式为pager，而不是pagination。如果想让带翻页按钮成两端对齐模式，那么还需要在“上一页”对应的li中添加previous样式，“下一页”对应的li中添加next样式，示例代码如下，效果如图6-53所示：
+
+```html
+<nav>
+    <ul class="pager">
+        <li><a href="#">上一页</a></li>
+        <li><a href="#">下一页</a></li>
+    </ul>
+</nav>
+```
+
+![nav_page](Screenshot/nav_page.png)
+
+图6-53 带翻页的分页导航样式
+
+### 6.4.9 标签与徽章的绘制与事件处理
+
+所谓标签和徽章，就类似与手机微信或QQ当收到消息时，在标签的旁边添加了明显的符号，以示有新消息的到来。在Bootstrap中，要实现这种效果非常简单，只需要使用span标签即可，如果在span标签中添加样式label，那么span就以标签的形式展示，并且标签还提供了五种颜色选择，分别是label-default（灰色）、label-primary（蓝色）、label-success（绿色）、label-info（淡蓝）、黄色（label-warning）、label-danger（红色），而如果在span标签中添加样式badge，那么span就以徽章的形式展示，示例代码如下，效果如图6-54所示：
+
+```html
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            ...
+        </div>
+
+        <div class="collapse navbar-collapse" id="main-navbar">
+            <ul class="nav navbar-nav">
+                <li><a href="javascript:void(0)">主页<span class="badge pull-right">20</span></a></li>
+                <li><a href="javascript:void(0)">公司业务<span class="label label-danger pull-right">New</span></a></li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" >
+                        移动操作系统 <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="javascript:void(0)" data-toggle="tab">Android</a></li>
+                        <li><a href="javascript:void(0)" data-toggle="tab">IOS</a></li>
+                        <li><a href="javascript:void(0)" data-toggle="tab">WindowsPhone</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <form class="navbar-form navbar-right">
+                ...
+            </form>
+        </div>
+    </div>
+</nav>
+```
+
+![label-badge](Screenshot/label-badge.png)
+
+图6-53 标签和徽章的样式
+
+在上面的代码中，首先为导航栏的“主页”栏添加了一个徽章，然后又在导航栏的“公司业务”栏添加了一个标签，并且设置该标签为红色。默认情况下，徽章和标签的位置都是紧贴所在的文字，如果想让该页面在移动端展示时，标签和徽章呈现在右边，那么就需要为标签和徽章添加一个右浮动的样式pull-right，如上面代码。
+
+### 6.4.10 巨幕的绘制与事件处理
+
 
 
 ## 6.5 Bootstrap框架与JavaScript插件的组合应用
