@@ -7,8 +7,8 @@
 > * Bootstrap简介与库文件的导入
 > * 响应式的栅格系统运作原理的理解
 > * 页面组件的全局样式设定
-> * 响应式的导航栏与常用组件的应用
-> * Bootstrap框架与JavaScript插件的组合应用
+> * 响应式的常用组件绘制与函数应用
+> * Bootstrap多种弹出框的绘制应用
 
 ## 6.1 Bootstrap简介与库文件的导入
 
@@ -1103,7 +1103,7 @@ Bootstrap中对栅格系统做了进一步的完善和改进，并且把网页�
 | .visible-*-inline | display: inline; |
 | .visible-*-inline-block | display: inline-block; |
 
-## 6.4 响应式的导航栏与常用组件的应用
+## 6.4 响应式的常用组件绘制与函数应用
 
 在上一节中讲了Bootstrap中的栅格系统的使用和基本UI组件样式的设置，以及常用的一些辅助样式，通过这些内容的使用可以构建一个最基本页面。除此之外，Bootstrap还提供了一套完善的UI组件，可以帮助开发人员快速构建响应式的现代页面，本节将以这些UI组件为立足点讲述Bootstrap中常用UI组件的使用方法和技术细节。
 
@@ -1922,7 +1922,198 @@ $(document).ready(function () {
 
 图6-59 进度条堆叠的样式
 
-## 6.5 Bootstrap框架与JavaScript插件的组合应用
+### 6.4.13 面板的绘制与事件处理
+
+面板是Bootstrap中非常重要的组件，通过面板既可以实现简单的内容展示，也可以与JavaScript结合实现复杂的带有动画效果的内容展示。在Bootstrap中，面板由三部分组成，分别是面板的标题、面板的内容，以及面板的注脚，其中面板的标题和注脚可以根据具体的需求选择性的添加和删除，但是面板内容必须有。
+
+**1、绘制完整的基本面板：** 要绘制一个完整的面板组件，一共依赖四个核心样式，分别是绘制面板的panel样式，其主要功能是设置面板的内边距和边框；绘制面板标题的panel-heading样式，其主要功能是设置面板标题的内边距和边框；绘制面板内容的panel-body样式，其主要功能是设置面板内容的内边距；绘制面板注脚的panel-footer样式，其主要功能是设置面板注脚的内边距和边框；以及绘制面板主题的五种主题颜色样式，分别是深蓝色（panel-primary）、绿色（panel-success）、淡蓝色（panel-info）、黄色（panel-warning）和红色（panel-danger）。示例代码如下，效果如图6-60所示：
+
+```html
+<div class="panel panel-primary">
+    <div class="panel-heading">面板标题</div>
+    <div class="panel-body">
+        <p>面板内容</p>
+        <p>面板内容</p>
+        <p>面板内容</p>
+        <p>面板内容</p>
+    </div>
+    <div class="panel-footer">面板注脚</div>
+</div>
+```
+
+![panel-base](Screenshot/panel-base.png)
+
+图6-60 基础面板的样式
+
+**2、绘制带表格的面板：** 在面板中除了添加文字之外，还可以添加无边框的表格，但需要在表格上添加table样式，并且表格的位置不是置于panel-body中，而是作为具有panel样式的div标签的直接子标签。示例代码如下，效果如图6-61所示：
+
+
+```html
+<div class="panel panel-primary">
+    <div class="panel-heading">面板标题</div>
+    <div class="panel-body">
+        <p>面板内容</p>
+        <p>面板内容</p>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>编号</th><th>用户名</th><th>类型</th><th>到期时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td><td>taowenyin</td><td>管理员</td><td>2017-01-20</td>
+            </tr>
+            <tr>
+                <td>2</td><td>lilei</td><td>操作员</td><td>2017-06-15</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="panel-footer">面板注脚</div>
+</div>
+```
+
+![panel-table](Screenshot/panel-table.png)
+
+图6-61 带表格的面板样式
+
+**3、带折叠的面板：** 所谓带折叠的面板就是把多个面板进行组合，形成一个面板组，然后在同一时刻只有一个面板呈打开状态，其他面板都呈关闭状态，从而在有限的页面中呈现更多的内容。要实现折叠面板一共需要经过如下八个步骤，示例代码如下，效果如图6-62所示：
+
+>* 第一步：创建一个携带panel-group样式的div标签，并且为该标签添加一个ID，该ID的目的是用于绑定面板组和面板，帮助折叠面板的JavaScript进行识别。
+>* 第二步：在面板组panel-group中创建若干个带有panel和panel-default样式的基础面板。
+>* 第三步：为每个面板添加一个带有panel-heading样式的面板标题。
+>* 第四步：在面板标题中添加具有panel-title样式的标签，并根据语义特性，该标签应该是h1-h6之间的标题标签。
+>* 第五步：在标题标签中添加一个超链接标签a，并在a标签中添加需要在面板标题上显示的文字。
+>* 第六步（重点）：为a标签添加属性data-toggle，并设置该属性的值为collapse，以此来告诉JavaScript该a标签的作用是进行折叠。
+>* 第七步（重点）：创建完a标签后就需要添加href属性，该属性的值为对应面板的ID号，目的是告诉JavaScript该折叠面板折叠的是哪个面板。同时再添加data-parent属性，该属性的值为面板组的ID号，目的是告诉JavaScript该折叠面板和哪个面板组进行了绑定。
+>* 第八步（重点）：在具有panel-heading样式的div标签之后创建具有panel-collapse和collapse样式的div。同时，在该标签中创建具有panel-body样式的div标签，并添加所需展示的内容。如果想让某个面板默认是展开状态，那么还需要在具有panel-collapse和collapse样式的div上添加in样式。
+
+```html
+<div class="panel-group" id="accordion-os">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-os" href="#collapse-android">
+                    Android操作系统
+                </a>
+            </h4>
+        </div>
+        <div id="collapse-android" class="panel-collapse collapse in">
+            <div class="panel-body">
+                Android操作系统是Google研发的开源移动设备操作系统
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="collapsed" data-toggle="collapse" data-parent="#accordion-os" href="#collapse-ios">
+                    IOS操作系统
+                </a>
+            </h4>
+        </div>
+        <div id="collapse-ios" class="panel-collapse collapse">
+            <div class="panel-body">
+                IOS操作系统是苹果公司研发的手机操作系统
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="collapsed" data-toggle="collapse" data-parent="#accordion-os" href="#collapse-wp">
+                    WindowsPhone操作系统
+                </a>
+            </h4>
+        </div>
+        <div id="collapse-wp" class="panel-collapse collapse">
+            <div class="panel-body">
+                WindowsPhone操作系统是微软公司研发的手机操作系统
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+![panel-collapse](Screenshot/panel-collapse.png)
+
+图6-62 带折叠的面板样式
+
+此外，在Bootstrap中还提供了三个函数来帮助开发人员通过JavaScript的方式来打开、关闭和切换面板，分别是$(#面板ID).collapse('show')、$(#面板ID).collapse('hide')，以及$(#面板ID).collapse('toggle')，其中“面板ID“指的是具有panel-body样式的div标签所在div标签的ID号，以上面的代码为例，示例代码如下。
+
+```javascript
+$('#collapse-android').collapse('toggle'); // 面板打开、关闭的切换
+$('#collapse-android').collapse('show'); // 面板的显示
+$('#collapse-android').collapse('hide'); // 面板的关闭
+```
+
+### 6.4.14 列表的绘制与事件处理
+
+列表不论在Web应用中、PC应用，还是手机应用中都是非常常用的组件。在Bootstrap中，列表所依赖的核心样式为list-group和list-group-item，其中前者用于修饰这个列表组，而后者则是修饰列表组中的每一项。
+
+**1、基础列表：** Bootstrap中的列表通过ul标签进行创建，并在ul标签上添加list-group样式，以表示列表组，然后为每一个li标签添加list-group-item样式，以表示列表项。此外，还可以在每个列表项中添加徽章，以表示新增的数目等信息。示例代码如下，效果如图6-63所示：
+
+```html
+<ul class="list-group">
+    <li class="list-group-item active">
+        <span class="badge">14</span>
+        Android
+    </li>
+    <li class="list-group-item">IOS</li>
+    <li class="list-group-item">WindowsPhone</li>
+    <li class="list-group-item">Blackberry</li>
+    <li class="list-group-item">MeeGo</li>
+</ul>
+```
+
+![list-base](Screenshot/list-base.png)
+
+图6-63 基础列表的样式
+
+**2、带链接的列表：** 带链接的列表与普通列表的区别在于，当用户点击列表项时，带链接的列表会有颜色反馈，而普通列表则没有反馈。要实现带链接的列表非常简单，只需要普通列表中的ul改为div，li改为a标签即可。此外，还可以在每个列表项上添加四种颜色样式，分别是list-group-item-success、list-group-item-info、list-group-item-warning，以及list-group-item-danger。示例代码如下，效果如图6-64所示：
+
+```html
+<div class="list-group">
+    <a href="#" class="list-group-item active">
+        <span class="badge">14</span>
+        Android
+    </a>
+    <a href="#" class="list-group-item">IOS</a>
+    <a href="#" class="list-group-item">WindowsPhone</a>
+    <a href="#" class="list-group-item">Blackberry</a>
+    <a href="#" class="list-group-item">MeeGo</a>
+</div>
+```
+
+![list-link](Screenshot/list-link.png)
+
+图6-64 带链接的列表样式
+
+**3、自定义样式的列表：** 在Bootstrap的列表样式库中还提供了两个较为特殊的样式，分别是list-group-item-heading，用于表示列表项的标题，以及list-group-item-text，用于表示列表项的内容，通过这两个样式的运用可以实现定制内容的绘制。示例代码如下，效果如图6-65所示：
+
+```html
+<div class="list-group">
+    <a href="#" class="list-group-item active">
+        <h4 class="list-group-item-heading">Android</h4>
+        <p class="list-group-item-text">Google的操作系统</p>
+    </a>
+    <a href="#" class="list-group-item">
+        <h4 class="list-group-item-heading">IOS</h4>
+        <p class="list-group-item-text">苹果的操作系统</p>
+    </a>
+    <a href="#" class="list-group-item">
+        <h4 class="list-group-item-heading">WindowsPhone</h4>
+        <p class="list-group-item-text">微软的操作系统</p>
+    </a>
+</div>
+```
+
+![list-custom](Screenshot/list-custom.png)
+
+图6-65 自定义样式的列表样式
+
+## 6.5 Bootstrap多种弹出框的绘制应用
 
 
 
