@@ -1825,13 +1825,102 @@ $(document).ready(function () {
 
 ![label-badge](Screenshot/label-badge.png)
 
-图6-53 标签和徽章的样式
+图6-54 标签和徽章的样式
 
 在上面的代码中，首先为导航栏的“主页”栏添加了一个徽章，然后又在导航栏的“公司业务”栏添加了一个标签，并且设置该标签为红色。默认情况下，徽章和标签的位置都是紧贴所在的文字，如果想让该页面在移动端展示时，标签和徽章呈现在右边，那么就需要为标签和徽章添加一个右浮动的样式pull-right，如上面代码。
 
 ### 6.4.10 巨幕的绘制与事件处理
 
+巨幕是Bootstrap另一个显著的特性，通常位于顶部导航栏之下，并占用很大的一块空间，用于展示最核心的功能。在构建巨幕时需要注意的是，巨幕与顶部导航栏、主页内容一样都是Bootstrap页面的重要组成部分，因此巨幕相关HTML代码并不放置于具有container或container-fluid样的div中，而是直接作为body的子元素呈现。巨幕的绘制并不复杂，首先在body标签中添加一个div标签，并且样式为jumbotron，然后在该div中添加具有container样式的div，最后根据所需内容逐一添加，示例代码如下，效果如图6-55所示：
 
+```html
+<body>
+    ...
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1>你好，SISO</h1>
+            <p>江苏省苏州市工业园区若水路99号，苏州工业园区服务外包职业学院</p>
+            <p><a class="btn btn-primary btn-lg" href="#">登录系统</a></p>
+        </div>
+    </div>
+
+    ...
+</body>
+```
+
+![jumbotron](Screenshot/jumbotron.png)
+
+图6-55 巨幕的样式
+
+### 6.4.11 缩略图的绘制与事件处理
+
+这里所谓的缩略图并不单指图片的缩略图，而是由文字、图片、按钮等多种元素组成的一个组件，然后再利用栅格系统有规律的放置在页面中，类似于通过电商平台搜索后的结果展示页面。缩略图在利用栅格系统进行布局的同时，还利用栅格系统对图片进行适当的压缩，并且到浏览器宽度变小时，缩略图的排列也会因为栅格系统内栅格排列的变化而变化，从而实现缩略图的响应式。在Bootstrap中，要构建缩略图，其核心样式是thumbnail，然后配合栅格系统进行布局，并在栅格中添加相关组件就可以实现内容丰富的效果，示例代码如下，效果如图6-56所示：
+
+```html
+<div class="row">
+    <div class="col-sm-3">
+        <div class="thumbnail">
+            <img src="./static/img/thumbnail-img.png">
+            <div class="caption">
+                <h3>飞利浦呼吸机</h3>
+                <p>飞利浦呼吸机伟康557P全自动家用医用无创睡眠暂停打呼噜止鼾器</p>
+                <p>
+                    <a href="#" class="btn btn-primary">下单</a>
+                    <a href="#" class="btn btn-success">详情</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail">...</div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail">...</div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail">...</div>
+    </div>
+</div>
+```
+
+![thumbnail-panel](Screenshot/thumbnail-panel.png)
+
+图6-56 缩略图的样式
+
+### 6.4.12 进度条的绘制与事件处理
+
+进度条的使用不论在Web中，还是在PC软件中，都得到了非常广泛的使用。在Bootstrap中提供了完整了进度条绘制方法，其核心样式为progress和progress-bar，前者用于绘制进度条的外边框，而后者则是绘制进度条的内容。此外，在Bootstrap中进度条的进度是通过CSS来进行控制，即这是进度条内容的width属性。
+
+**1、带文字的基本进度条：** 在Bootstrap中要创建进度条，首先需要创建一个div标签，并为该标签添加progress样式，然后在该标签中再添加一个div标签，并为该标签添加样式progress-bar，如果要在进度条上显示进度值，那么只需要在具有progress-bar样式的div中添加文字即可，如果进度条的值较小，例如0%，那么可以为progress-bar样式的div设置min-width属性，以保证进度条的文本可见。此外，在Bootstrap中，还可以为进度条添加四种不同的颜色样式，分别是绿色（progress-bar-success）、蓝色（progress-bar-info）、黄色（progress-bar-warning），以及红色（progress-bar-danger）。示例代码如下，效果如图6-57所示：
+
+```html
+<div class="progress">
+    <div class="progress-bar progress-bar-info" style="width: 60%;">60%</div>
+</div>
+```
+
+![progress-text](Screenshot/progress-text.png)
+
+图6-57 带文字的基本进度条样式
+
+**2、带斑马纹的进度条：** 如果想让进度条具有斑马纹效果，那么就需要为具有progress-bar样式的div标签添加progress-bar-striped样式，如果还希望斑马纹能够呈现动画效果，那么还需要在添加progress-bar-striped样式的基础上添加active样式。示例代码如下，效果如图6-58所示：
+
+```html
+<div class="progress">
+    <div class="progress-bar progress-bar-info progress-bar-striped active" style="width: 60%;">60%</div>
+</div>
+```
+
+![progress-striped](Screenshot/progress-striped.png)
+
+图6-58 带斑马纹的进度条样式
+
+**3、堆叠效果的进度条：** 所谓堆叠效果的进度条，就是把多个进度条放入一个具有progress样式的div中。需要注意的是，这些进度条并不是以层的方式进行方式，而是以水平排列方式进行防治，因此如果有4个进度条，那么每个进度条的最大宽度应该为25%。示例代码如下，效果如图6-59所示：
+
+![progress-multi](Screenshot/progress-multi.png)
+
+图6-59 进度条堆叠的样式
 
 ## 6.5 Bootstrap框架与JavaScript插件的组合应用
 
