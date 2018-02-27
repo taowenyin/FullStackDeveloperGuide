@@ -8,7 +8,7 @@
 > * 响应式的栅格系统运作原理的理解
 > * 页面组件的全局样式设定
 > * 响应式的常用组件绘制与函数应用
-> * Bootstrap多种弹出框的绘制应用
+> * Bootstrap对JavaScript的实现与弹出组件应用
 
 ## 6.1 Bootstrap简介与库文件的导入
 
@@ -2113,8 +2113,162 @@ $('#collapse-android').collapse('hide'); // 面板的关闭
 
 图6-65 自定义样式的列表样式
 
-## 6.5 Bootstrap多种弹出框的绘制应用
+## 6.5 Bootstrap对JavaScript的实现与弹出组件应用
 
+在上一章节主要讲了如何通过Bootstrap所提供的各类CSS样式来绘制UI组件。在讲解这些内容时，少数几个组件涉及到JavaScript，而不大部分组件的绘制都还是通过CSS来完成，但是实际上Bootstrap中一个很重要的组成部分就是JavaScript，并且BootStrap通过HTML5的新增特性与JavaScript相结合，使得用户只需要在标签中添加对应的属性就可以无感的运用各类JavaScript插件。在上一节中，很多UI组件都用到了data-*属性，该属性是HTML5中新增加的特性，允许开发人员添加各类自定义的数据，其中“*”所表示的内容可以是开发者任意定义的字符，以表示某一个自定义的API名称，而data-*所对应的值则是一串事先定义好的字符串，表示某一个自定义API所作用的对象，例如data-dismiss="modal"中dismiss表示就是关闭的API，modal表示模态对话框，那么该属性组合起来就是关闭模态对话框的意思。Bootstrap中正是通过这些自定义的data-*属性从而实现许多以往只能通过JavaScript代码才能实现的功能。当然，Bootstrap也提供了这些data-*属性所对应的API接口，其调用方式与JQuery一致，并且也支持JQuery的链式操作，示例代码如下：
 
+```javascript
+$('.btn.danger').button('toggle').addClass('fat')
+```
+
+在上面的代码中$('选择器').button()是按钮组件Button的data-*属性所对应的API接口，而'toggle'则是该接口函数对应的参数。在Bootstrap中，所有的接口函数都能支持三种类型的参数，分别是无参（即默认参数）、对象参数（即通过{}符号形成的配置参数），以及字符串参数（即代表方法的字符串），示例代码如下：
+
+```javascript
+$('#myModal').modal()                      // 以默认值初始化
+$('#myModal').modal({ keyboard: false })   // 传入配置参数对象
+$('#myModal').modal('show')                // 初始化后立即调用show方法
+```
+
+### 6.5.1 模态对话框的绘制与事件处理
+
+对话框是Web应用、PC应用，以及移动终端应用中非常常见的组件。所谓模态对话框就是当对话框打开时，会阻止用户对弹出对话框之外的内容进行操作，并且模态对话框一次只能显示一个。在Bootstrap中，模态对话框的绘制共需要三层容器的绘制，第一层是具有modal样式的div标签，该标签用户绘制整个模态对话框的框架，并且对话框的显示和隐藏都用该标签来完成，第二层是具有modal-dialog样式的div标签，该标签重要绘制模态对话框的样式，而第三层则是具有modal-content样式的div标签，在该标签中又有三部分组成，分别是绘制对话框标题的具有modal-header样式的div标签、绘制对话框内容的具有modal-body样式的div标签，以及绘制对话框脚注的具有modal-footer样式的div标签，示例代码如下：
+
+```html
+<!-- 绘制对话框的框架 -->
+<div class="modal">
+    <!-- 绘制对话框的样式 -->
+    <div class="modal-dialog">
+        <!-- 绘制对话框的内容 -->
+        <div class="modal-content">
+            <!-- 绘制对话框的标题 -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">模态对话框标题</h4>
+            </div>
+            <!-- 绘制对话框的内容 -->
+            <div class="modal-body">
+                <p>模态对话框内容</p>
+            </div>
+            <!-- 绘制对话框的脚注 -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default">关闭</button>
+                <button type="button" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+在绘制模态对话框是需要注意的是，必须将其代码至于文档的最高层级，即作为body标签的直接子元素，以避免其他组件影响模态框的展现或功能。当绘制完成后接下来就是要和按钮进行绑定，从而实现点击按钮时弹出对话框。绑定按钮前，首要为模态对话框添加ID，该ID的作用就是用于告诉按钮弹出的是哪一个对话框，添加完ID之后就添加一个按钮组件Button，并添加data-target和data-toggle属性，前者用于告诉按钮作用的对象是哪个，因此属性值为对话框ID，后者是告诉按钮点击时执行的行为是打开模态对话框。如果需要为关闭按钮添加关闭对话框的操作，那么就需要在关闭按钮上添加API属性data-dismiss="modal"，因此修改上面的代码如下，效果如图6-66所示：
+
+```html
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#my-dialog">
+    打开模态对话框
+</button>
+
+<!-- 添加模态对话框的ID -->
+<div class="modal fade" id="my-dialog">
+    ...
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary">保存</button>
+    </div>
+</div>
+```
+
+![modal-open](Screenshot/modal-open.png)
+
+图6-66 模态对话框的样式
+
+除了上面提供的data-toggle、data-target，以及data-dismiss属性外，Bootstrap还提供了三个属性用于设置对话框，以及三个函数用于控制对话框的打开和关闭状态，其中三个属性分别是backdrop、keyboard，以及show，backdrop的属性值为布尔型，表示是否允许用户点击模态框外部时关闭对话框，keyboard的属性值也为布尔型，表示是否允许按下键盘上的ESC键来关闭对话框，最后是show的属性值也为布尔型，表示对话框初始化之后是否立即显示，设置代码如下：
+
+```javascript
+$('#my-dialog').modal({
+    backdrop: false,
+    keyboard: true,
+    show: false
+})
+```
+
+而三个控制函数则分别如下：
+
+**1、$('选择器')modal('toggle')：** 切换对话框的打开和关闭状态。
+
+**2、$('选择器')modal('show')：** 打开对话框。
+
+**3、$('选择器')modal('hide')：** 关闭对话框。
+
+除了属性和函数外，Bootstrap还为模态对话框提供了一些监听对话框的事件，具体如表6-7所示。
+
+表6-7 模态对话框的事件
+
+| 事件类型 | 描述 | 使用方法 |
+| :-: | :- | :- |
+| show.bs.modal | 对话框显示之前触发该事件。如果是通过点击某个元素触发器，那么可以通过事件的relatedTarget属性来获取触发的对象。 | $('#myModal').on('show.bs.modal', function (e) {...}) |
+| shown.bs.modal | 对话框显示之后触发该事件。如果是通过点击某个元素触发器，那么可以通过事件的relatedTarget属性来获取触发的对象。 | $('#myModal').on('shown.bs.modal', function (e) {...}) |
+| hide.bs.modal | 对话框隐藏结束之前触发该事件。 | $('#myModal').on('hide.bs.modal', function (e) {...}) |
+| hidden.bs.modal | 对话框隐藏结束之后触发该事件。 | $('#myModal').on('hidden.bs.modal', function (e) {...}) |
+
+### 6.5.2 提示工具的绘制与事件处理
+
+当在填写表单等信息时，很多时候都不知道如何填写，那么此时提示工具就显得非常重要。在Bootstrap中提示工具并不需要编写相关的HTML代码，而是在需要显示提示工具的标签添加相应的属性即可，提示工具依赖的最核心属性有三个，分别是data-toggle="tooltip"、title="提示工具显示的文字"，以及data-placement="位置"，其中data-toggle属性表示调用的是提示工具，title属性表示用于在提示工具上显示的提示文字，而data-placement则表示提示工具相对触发对象的位置。示例代码如下，效果如图6-67所示：
+
+```html
+<button type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="按钮提示工具测试">
+    按钮提示工具测试
+</button>
+<a href="#" data-toggle="tooltip" data-placement="top" title="链接提示工具测试">链接提示工具测试</a>
+```
+
+![tooltip](Screenshot/tooltip.png)
+
+图6-67 提示工具的样式
+
+需要注意的是，提示工具的使用需要在页面加载完毕后进行激活，因此可以添加如下的带来来对页面中的提示工具进行初始化。
+
+```javascript
+$(document).ready(function () {
+    $("[data-toggle='tooltip']").tooltip();
+});
+```
+
+此外，Bootstrap还为提示工具添加了丰富的属性来设置提示工具的特性，具体如表6-8所示。
+
+表6-8 提示工具的属性
+
+| 属性名称 | 类型/默认值 | Data属性名称 | 说明 |
+| :-: | :- | :- | :- |
+| animation | 布尔型 | data-animation | 是否启用动画 |
+| placement | 字符串（top、bottom、left、right、auto）或者函数返回 | data-placement | 提示工具的位置。当值为auto时，会动态调整提示工具。即提示工具将会尽可能显示在左边，在情况不允许的情况下它才会显示在右边 |
+| title | 字符串或者函数返回 | data-title | 如果未指定 title 属性，则 title 选项是默认的 title 值 |
+| trigger | 字符串（click、hover、focus、manual）或者函数返回 | data-trigger | 定义如何触发提示工具 |
+| delay | 整数或者延时对象 | data-delay | 延迟显示和隐藏提示工具的毫秒数，如果传入延时对象，应该是{ show: 时间, hide: 时间 } |
+| trigger | 字符串（click、hover、focus、manual）或者函数返回 | data-trigger | 定义如何触发提示工具 |
+| trigger | 字符串（click、hover、focus、manual）或者函数返回 | data-trigger | 定义如何触发提示工具 |
+| trigger | 字符串（click、hover、focus、manual）或者函数返回 | data-trigger | 定义如何触发提示工具 |
+| trigger | 字符串（click、hover、focus、manual）或者函数返回 | data-trigger | 定义如何触发提示工具 |
+
+### 6.5.3 警告框的绘制与事件处理
+
+警告框组通常用于为用户提供一些页面的提示信息或者动作反馈。在Bootstrap中，警告框的绘制主要依赖三个样式，分别是alert、alert-样式名称、alert-dismissible，其中alert用于绘制整个警告框的样式，alert-样式名称则用于绘制警告框的背景颜色和文字颜色，而alert-dismissible则绘制警告框的关闭按钮，示例代码如下，效果如图6-68所示：
+
+```html
+<div class="alert alert-danger alert-dismissible fade in">
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    <strong>警告！</strong>服务器出现异常，需要紧急处理...
+</div>
+```
+
+>* 第一行代码：如果该警告框不需要携带关闭按钮，那么alert-dismissible样式可以删除，反之则必须添加。此外，fade和in是警告框关闭时的动画效果。
+>* 第二行代码：添加了一个警告框的关闭按钮，并且该关闭按钮添加的关闭处理属性data-dismiss。需要注意的是，警告框可以不携带关闭按钮，但是如果携带了关闭按钮，那么该按钮标签只能作为具有alert-dismissible样式的div标签中的第一个标签。
+
+![alert](Screenshot/alert.png)
+
+图6-68 警告框的样式
 
 ## 6.6 小结
+
+通过本章的学习，了解了Bootstrap的基本组成部分，并且深入了解了部分非常重要的概念，首先分析了创建HTML5中如何设置viewport、缩放等基本属性，帮助开发人员创建一个最简单的基于响应式的页面，其次了解了Bootstrap的组成部分和导入方法，然后深入学习了响应式布局中非常重要的栅格系统的构建原理和方法，为今后深入分析响应式布局的现象提供了理论支撑，最后讲了大量Bootstrap中常用的UI组件的绘制方法和相关函数的调用，以及Bootstrap中“data-api”的使用方法。通过这些知识的学习读者基本可以有一个基于响应式框架的Web页面开发方法，但是Bootstrap框架的内容还在不断改进，到笔者撰书为止，Bootstrap 4已经开始测试，并且将在2017年底或2018年初正式发布，因此本章在学习是重点是其方法，通过对原理的理解为今后的学习打下扎实的基础。
