@@ -588,9 +588,155 @@ SELECT * FROM person WHERE NAME LIKE '张_'
 
 ### 7.3.3 集合函数与分组数据查询
 
+在信息系统开发中经常会出现例如查询一个班级男生有多少人，女生有多少人这样的分类查询，最直观的方法是通过“SELECT...WHERE...”的方式获取每种分类的数据表，然后进行分别计算，从而得到相应的数量，这种方法固然能得到想要的结果，但是费时费力，甚至还有可能出现数据不全的现象。因此，针对这一类的查询，MySQL提供了标准的分组查询来简化这一操作。由于“GROUP BY”关键字的使用与“SELECT”有明显的区别，因此本节采用分层递进的方式进行说明，分组查询所使用的语法结构如下：
 
+```sql
+SELECT 字段名列表 FROM 数据表名 GROUP BY 分组字段名 [HAVING 分组查询条件表达式]
+```
+
+**1、阶段一：最简分组查询**
+
+以Person表为例，按照sex字段名进行分组，获取班级中男生和女生各多少人，具体SQL语句如下：
+
+```sql
+SELECT * FROM person GROUP BY sex;
+```
+
+当在数据库中执行该语句时读者可能会碰到与笔者相同的指令执行失败的错误，并且在错误提示中有关键字”sql_mode=only_full_group_by“。这表示MySQL在执行”GROUP BY“语句时采用了严格模式，即只能在SELECT字段中填入受影响的字段，而其他字段不能填入。因此，需要把上面的SQL语句改成如下内容：
+
+```sql
+SELECT sex FROM person GROUP BY sex;
+```
+
+输入正确指令后得到了如图7-16的结果。在该结果其实看不出任何有用的信息，这是由于”GROUP BY“语句通常不会单独使用，而是与各类集合函数联合使用才能获取想要的结果。
+
+![group-by-base](Screenshot/group-by-base.png)
+
+图7-16 最简”GROUP BY“语句
+
+**2、阶段二：集合函数COUNT()的使用**
+
+”GROUP BY“语句结合最多的集合函数就是COUNT()，该函数的主要作用就是计算数据库中的所记录数据条数。在本例中就可以用于计算男生有多少人，女生有多少人，具体SQL语句如下：
+
+```sql
+SELECT sex, COUNT(sex) FROM person GROUP BY sex;
+```
+
+在MySQL中执行上面的语句，就可以得到如图7-17所示的结果，从结果可以看出通过COUNT()计算出了sex字段值为0的人数有2人，而字段值为1的人数有4人。此外，可以注意到在结果中保存数量的字段名为”COUNT(sex)“，这样的字段名在程序处理时不是很方便，因此需要用关键”as“为该字段去个别名，如count等，具体SQL语句如下：
+
+```sql
+SELECT sex, COUNT(sex) AS count FROM person GROUP BY sex;
+```
+
+![group-by-count](Screenshot/group-by-count.png)
+
+图7-17 集合函数COUNT()的使用
+
+COUNT()函数除了能与”GROUP BY“语句结合外，还能够单独使用，即计算当前查询共获取多少条的数据，具体SQL语句如下：
+
+```sql
+SELECT COUNT(*) AS count FROM person;
+```
+
+**3、阶段三：集合函数SUM()的使用**
+
+SUM()函数顾名思义就可以知道该函数的主要作用就是求和。本例通过新建一个成绩数据表（grade），并填入两位同学相应的课程成绩数据来进行说明，具体SQL语句如下：
+
+```sql
+CREATE TABLE grade (
+  id INT NOT NULL AUTO_INCREMENT,
+  course VARCHAR(45) NOT NULL,
+  grade INT NOT NULL,
+  person_id INT NOT NULL,
+
+  PRIMARY KEY (`id`),
+  INDEX `FK_GRADE_PERSON_idx` (`person_id` ASC),
+  CONSTRAINT `FK_GRADE_PERSON` FOREIGN KEY (`person_id`) REFERENCES `test`.`person` (`id`));
+
+INSERT INTO `grade` (`course`, `grade`, `person_id`) VALUES ('PHP程序设计', '77', '2');
+INSERT INTO `grade` (`course`, `grade`, `person_id`) VALUES ('操作系统', '88', '1');
+INSERT INTO `grade` (`course`, `grade`, `person_id`) VALUES ('数据结构', '78', '2');
+INSERT INTO `grade` (`course`, `grade`, `person_id`) VALUES ('操作系统', '82', '2');
+INSERT INTO `grade` (`course`, `grade`, `person_id`) VALUES ('数据结构', '85', '1');
+INSERT INTO `grade` (`course`, `grade`, `person_id`) VALUES ('PHP程序设计', '90', '1');
+```
+
+需要注意的SUM()函数在使用时通常要与”GROUP BY“一起使用才能得到有意义的结果，因此在本例中要计算每位同学的课程总分可以使用如下SQL语句，并得到如图7-18所示的结果。
+
+```sql
+SELECT person_id, SUM(grade) FROM grade GROUP BY person_id;
+```
+
+![group-by-sum](Screenshot/group-by-sum.png)
+
+图7-18 集合函数SUM()的使用
+
+从上图可以看出，首先对person_id进行分组，从而在MySQL内部得到每个person_id对应的一组数据，然后使用SUM()函数对这每组数据中的成绩数据进行求和计算，从而得到了每个person_id的成绩和。
+
+**4、阶段四：集合函数AVG()的使用**
+
+AVG()函数顾名思义就可以知道该函数的主要作用就是求平均值。与SUM()函数类似该函数的使用需要与”GROUP BY“一起使用才能得到有意义的结果，因此以计算每位同学的课程平均分为例展示AVG()函数的使用方法，具体SQL语句如下，结果如图7-19所示。
+
+```sql
+SELECT person_id, AVG(grade) FROM grade GROUP BY person_id;
+```
+
+从SQL语句可以看出，首先对person_id进行分组操作，在MySQL内部得到每个person_id对应的一组数据，然后使用AVG()函数对每组数据中的成绩进行求平均计算，从而得到每个person_id的平均成绩。
+
+![group-by-avg](Screenshot/group-by-avg.png)
+
+图7-19 集合函数AVG()的使用
+
+**5、阶段五：集合函数MAX()和MIN()的使用**
+
+MAX()和MIN()函数顾名思义就可以知道这两个函数的主要作用是获取最大值和最小值。并与其他聚合函数相同在使用该函数类时需要与”GROUP BY“一起使用才能得到有意义的结果，因此以计算每科成绩的最高分和最低分为例展示MAX()和MIN()函数的使用方法，具体SQL语句如下，结果如图7-20所示。
+
+```sql
+# 计算各科的最高分
+SELECT course, MAX(grade) FROM grade GROUP BY course;
+# 计算各科的最低分
+SELECT course, MIN(grade) FROM grade GROUP BY course;
+```
+
+从SQL语句可以看出，首先对course进行分组操作，在MySQL内部得到每个course对应的一组数据，然后使用MAX()或MIN()函数对每组数据中的成绩进行计算，从而得到每个course的最高成绩和最低成绩。
+
+![group-by-max-min](Screenshot/group-by-max-min.png)
+
+图7-20 集合函数MAX()和MIN()的使用
+
+**6、阶段六：HAVING条件表达式的使用**
+
+在使用HAVING条件表达式时特别要注意与WHERE条件表达式进行区分，WHERE条件表达式主要针对的是选择满足条件的数据纪录，而HAVING条件表达式则是针对的是满足条件的分组。因此，这里以Person数据表为例，查询学生所在地区大于等于2人的城市，具体SQL语句如下，结果如图7-21所示。
+
+```sql
+# 获取按照地址进行分组的数据
+SELECT address FROM person GROUP BY address
+# 获取按照地址进行分组后所在分组人数大于等于2的数据
+SELECT address FROM person GROUP BY address HAVING COUNT(name) >= 2;
+```
+
+从SQL语句可以看出，首先对address进行分组操作，在MySQL内部得到每个address对应的一组数据，如第一条SQL得到的结果，然后使用HAVING条件表达式与COUNT()函数相结合从而对每组数据中的人数进行统计和计算，从而得到人数大于等于2的分组。
+
+![group-by-having](Screenshot/group-by-having.png)
+
+图7-21 HAVING条件表达式的使用
+
+**7、阶段七：多字段的分组查询**
+
+在上面的分组查询中，“GROUP BY”关键字后都只跟随一个字段，但是实际上“GROUP BY”可以跟随多个关键字，其逻辑为先匹配第一个字段，对整个数据表进行分组，然后再在前一个字段分组的基础上在每个组中进行分组，以此类推就是多字段分组的含义。下面还是以Person数据表为例，查询各个地方sex值为0和1的学生数量，具体SQL语句如下，结果如图7-22所示。
+
+```sql
+SELECT address, sex, COUNT(sex) AS count FROM person GROUP BY address, sex;
+```
+
+从SQL语句可以看出，首先对address字段进行分组，然后在其分组的基础上对sex进行分组，同时通过COUNT()函数计算分组后每组sex值的数量。
+
+![group-by-multiple-parameters](Screenshot/group-by-multiple-parameters.png)
+
+图7-22 多字段的分组查询使用
 
 ### 7.3.4 多数据表的基本查询
+
 
 
 
