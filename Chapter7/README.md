@@ -460,7 +460,7 @@ DROP TABLE 表名;
 
 ## 7.3 常用查询语句的使用
 
-在服务端的应用开发中频率最高的操作就是数据库的读取操作，这些操作涉及到信息的读取，BI的展示、数据表的分页以及多平台数据的传输等众多内容内容，因此MySQL除了支持标准的SQL语句外，还提供了许多内部函数来为数据库查询提供更多的功能。按照查询的方式不同可以把所有的查询语句分为五个类别，分别是单数据表的基础查询、单数据表的条件查询、集合函数与分组数据查询、多数据表的基本查询、子数据表查询，通过这些不同查询语句的组合就可以实现任何内容的查询。其中需要注意的是单数据表的基础查询或单数据表的条件查询中的单表并不仅仅指物理上的一个数据表，还包括经过经过多种数据表查询后得到的数据表，因此虽然本节中应用的例子是单表，但实际上可以应用于多表查询，具体参见子数据表查询。
+在服务端的应用开发中频率最高的操作就是数据库的读取操作，这些操作涉及到信息的读取，BI的展示、数据表的分页以及多平台数据的传输等众多内容内容，因此MySQL除了支持标准的SQL语句外，还提供了许多内部函数来为数据库查询提供更多的功能。按照查询的方式不同可以把所有的查询语句分为五个类别，分别是单数据表的基础查询、单数据表的条件查询、集合函数与分组数据查询、多数据表的联合查询、子数据表查询，通过这些不同查询语句的组合就可以实现任何内容的查询。其中需要注意的是单数据表的基础查询或单数据表的条件查询中的单表并不仅仅指物理上的一个数据表，还包括经过经过多种数据表查询后得到的数据表，因此虽然本节中应用的例子是单表，但实际上可以应用于多表查询，具体参见子数据表查询。
 
 ### 7.3.1 单数据表的基础查询
 
@@ -735,11 +735,105 @@ SELECT address, sex, COUNT(sex) AS count FROM person GROUP BY address, sex;
 
 图7-22 多字段的分组查询使用
 
-### 7.3.4 多数据表的基本查询
+### 7.3.4 多数据表的联合查询
 
+由于数据库在进行设计时会按照相关范式进行设计，使得数据库内的数据表都会向着最小不可分、无冗余数据的方向进行设计，所以在在实际的应用开发中，经常会在多张数据表之间通过构建主键和外键的方式把这些数据表进行关联，此时要获取完整的数据就需要通过多表联合查询的方式才能实现。在MySQL中多表联合查询有两种方式，分别是内连接查询、外链接查询，其中外链接又可以再分为左连接查询和右连接查询。本节将详细阐述这些查询具体的使用方法。
 
+**1、内连接查询**
 
+内连接查询是数据库多表查询中最为简单的一种方式，但需要读者特别注意的是内连接查询的实质是在求多表之间的交集，如图7-23所示，而求多表之间交集的纽带就是通过主键和外键来实现，内连接查询的SQL语法如下：
 
+```sql
+SELECT 字段列表 FROM 数据表1 INNER JOIN 数据表N ON 查询条件
+```
+
+![inner-join](Screenshot/inner-join.png)
+
+图7-23 内连接查询的含义
+
+下面以Person数据表和Class数据表为例讲解相关内容，在Person数据表中有一个外键字段class_id，该字段依赖于Class数据表中的主键字段id，此时要获得新的一张易于理解的学生数据表，该数据表特点是既包含了Person数据表中完整的数据信息，也包含了Class数据表中的信息，使得新数据表在获得class_id同时也能够获取对应class_name，具体SQL语句如下，结果如图7-24所示。
+
+```sql
+# 内连接查询（FROM ... INNER JOIN ... ON ...）
+SELECT 
+    person.id, 
+    person.name, 
+    person.sex, 
+    person.address, 
+    person.class_id, 
+    class.name AS class_name, 
+    person.birthday 
+FROM person INNER JOIN class
+ON person.class_id = class.id;
+
+# 等价于（FROM ... WHERE ...）
+SELECT 
+    person.id, 
+    person.name, 
+    person.sex, 
+    person.address, 
+    person.class_id, 
+    class.name AS class_name, 
+    person.birthday 
+FROM person, class
+WHERE person.class_id = class.id;
+```
+
+从上面的代码可以看出内连接查询中新增加了两组关键字，分别是“INNER JOIN”和“ON”，前者用于关联多个数据表，而后者用于多表查询的条件。正如前面所说的内连接查询的本质是获取多个数据表之间的交集数据，因此在内连接查询中“FROM ... INNER JOIN ...”关键字与“FROM”关键字等价，“ON”关键字与“WHERE”关键字等价。
+
+![sql-inner-join](Screenshot/sql-inner-join.png)
+
+图7-24 内连接查询
+
+**2、外连接查询**
+
+在MySQL查询除了采用求交集计算的内连接查询外，还有采用求并集计算的外链接查询。采用外链接查询的结果中会把所查询的所有数据表中的一张表的内容全部展示，而另（1至N）张表则只显示有相关纪录的内容，而无相关记录的则显示为NULL，如图7-25所示。外连接查询的SQL语法如下：
+
+```sql
+SELECT 字段列表 FROM 数据表1 LEFT|RIGHT JOIN 数据表N ON 查询条件
+```
+
+![left-right-join](Screenshot/left-right-join.png)
+
+图7-25 左、右连接查询
+
+下面以Person数据表和Grade数据表为例讲解相关内容，在Grade数据表中有一个外键字段person_id，该字段依赖于Person数据表中的主键字段id，此时想要获得新的一张易于理解的所有学生成绩数据表，因此需要采用外链接查询的方式，这是因为并不一定每位同学都有成绩，所以如果采用内连接进行查询，那么查询结果极有可能出现学生人数不全的问题，而只有采用外链接查询的方式才能解决该问题，具体SQL语句如下，结果如图7-26所示。
+
+```sql
+# 内连接查询
+select 
+    person.id,
+    person.name,
+    person.sex,
+    person.class_id,
+    person.birthday,
+    grade.id as grade_id,
+    grade.course,
+    grade.grade 
+from person inner join grade 
+on person.id = grade.person_id
+order by id asc;
+
+# 左连接查询
+select 
+    person.id,
+    person.name,
+    person.sex,
+    person.class_id,
+    person.birthday,
+    grade.id as grade_id,
+    grade.course,
+    grade.grade 
+from person left join grade 
+on person.id = grade.person_id
+order by id asc;
+```
+
+![left-join](Screenshot/left-join.png)
+
+图7-26 左连接查询与内连接查询结果比较
+
+从结果图不难看出，Grade数据表中只涉及到Person数据表中的两位学生，而其他四位学生都没有相关成绩，所以如果使用内连接查询时结果只会展示有交集的两位同学信息，而没有交集的同学信息则不会展示，因此要展示完整的信息就需要使用左连接查询，即能把所有同学信息都查询展出的同时，还把相关同学的成绩也一并展示。右链接查询与左连接查询类似，区别在于采用左连接查询时“LEFT JOIN”关键字左边的数据表会全部显示，右边数据表中无相关的数据就显示NULL，而采用右连接查询时“RIGHT JOIN”关键字右边的数据表会全部显示，左边数据表中无相关的数据就显示NULL。
 
 ### 7.3.5 子数据表查询
 
