@@ -1,7 +1,7 @@
 # 目录
 
-* [前言](SUMMARY.md) **（未完成）**
-* [第一章：PHP入门概述](Chapter1/README.md) **（未完成）**
+* [前言](SUMMARY.md) **（完成）**
+* [第一章：PHP入门概述](Chapter1/README.md) **（完成）**
 * [第二章：Web服务器开发环境的搭建](Chapter2/README.md) **（完成）**
 * [第三章：几种常用的Web开发工具](Chapter3/README.md) **（完成）**
 * [第四章：面向对象的PHP程序分析与设计](Chapter4/README.md) **（完成）**
